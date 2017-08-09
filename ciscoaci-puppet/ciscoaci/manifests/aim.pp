@@ -117,6 +117,10 @@ class ciscoaci::aim(
      'group_policy/extension_drivers':          value => 'aim_extension,proxy_group,apic_allowed_vm_name,apic_segmentation_label';
    }
 
+   neutron_agent_ovs { 
+     'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.IptablesFirewallDriver';
+   }
+
    $nvr = join(any2array($neutron_network_vlan_ranges), ',')
    if $nvr != '' {
      neutron_plugin_cisco_aci{

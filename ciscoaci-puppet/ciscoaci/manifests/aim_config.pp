@@ -50,6 +50,8 @@ class ciscoaci::aim_config(
      "apic_vmdom:$aci_apic_systemid/encap_mode":  value => $aci_encap_mode;
      'apic/apic_entity_profile':                  value => $aci_apic_aep;
      'apic/scope_infra':                          value => False;
+     'apic/apic_provision_infra':                 value => False;
+     'apic/apic_provision_hostlinks':             value => False;
   }
  
   if $aci_encap_mode == 'vlan' {
