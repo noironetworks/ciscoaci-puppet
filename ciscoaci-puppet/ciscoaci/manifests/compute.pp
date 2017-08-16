@@ -80,6 +80,10 @@ class ciscoaci::compute(
      require     => Package['aci-neutron-ml2-package'],
    }
 
+   neutron_agent_ovs {
+     'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.IptablesFirewallDriver';
+   }
+
   class {'ciscoaci::opflex':
   }
 
