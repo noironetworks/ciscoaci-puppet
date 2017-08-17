@@ -118,7 +118,7 @@ class ciscoaci::aim(
    }
 
    neutron_agent_ovs { 
-     'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.IptablesFirewallDriver';
+     'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver';
    }
 
    $nvr = join(any2array($neutron_network_vlan_ranges), ',')

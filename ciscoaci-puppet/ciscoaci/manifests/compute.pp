@@ -81,7 +81,7 @@ class ciscoaci::compute(
    }
 
    neutron_agent_ovs {
-     'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.IptablesFirewallDriver';
+     'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver';
    }
 
   class {'ciscoaci::opflex':
