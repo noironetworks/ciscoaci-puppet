@@ -1,5 +1,5 @@
 Name:           ciscoaci-puppet
-Version:        1.0
+Version:        1.1
 Release:        %{?release}%{!?release:1}
 Summary:        Puppet manifests for configuring Cisco Aci Openstack plugin
 License:        ASL 2.0

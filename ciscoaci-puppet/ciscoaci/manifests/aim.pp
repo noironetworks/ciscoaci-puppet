@@ -10,11 +10,11 @@ class ciscoaci::aim(
    include ::neutron::deps
    include ::ciscoaci::deps
 
-   package {'aci-neutron-ml2-package':
-     ensure => $package_ensure,
-     name   => $::ciscoaci::params::aci_neutron_ml2_package,
-     tag    => ['neutron-support-package', 'openstack']
-   }
+   #package {'aci-neutron-ml2-package':
+   #  ensure => $package_ensure,
+   #  name   => $::ciscoaci::params::aci_neutron_ml2_package,
+   #  tag    => ['neutron-support-package', 'openstack']
+   #}
 
    package {'aci-neutron-gbp-package':
      ensure => $package_ensure,
