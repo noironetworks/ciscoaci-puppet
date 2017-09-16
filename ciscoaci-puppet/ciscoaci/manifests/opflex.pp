@@ -129,8 +129,13 @@ class ciscoaci::opflex(
      require  => Setup_dhclient_file['dummy'], 
    }
 
-   exec {'fix_iptables':
-      command => "/usr/sbin/iptables -I INPUT -p udp -m multiport --dports 8472 -m comment --comment \"vxlan\" -m state --state NEW -j ACCEPT",
+   #exec {'fix_iptables':
+   #   command => "/usr/sbin/iptables -I INPUT -p udp -m multiport --dports 8472 -m comment --comment \"vxlan\" -m state --state NEW -j ACCEPT",
+   #}
+   firewall {'997 vxlan 8472':
+      action => 'accept',
+      dport  => '8472',
+      proto  => 'udp',
    }
 
    vs_bridge {$aci_opflex_ovs_bridge:
