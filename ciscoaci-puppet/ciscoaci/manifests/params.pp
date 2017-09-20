@@ -12,6 +12,7 @@ class ciscoaci::params {
      $aci_horizon_package = 'openstack-dashboard-gbp'
      $aci_gbpclient_package = 'python-gbpclient'
      $aci_heat_package = 'openstack-heat-gbp'
+     $apicapi_package = 'apicapi'
      $aci_neutron_config_file = '/etc/neutron/plugins/ml2/ml2_conf_cisco_apic.ini'
   }
 }

@@ -33,25 +33,25 @@ class ciscoaci::aim_config(
   }
 
   aim_conf {
-     'DEFAULT/debug':                             value => True;
+     'DEFAULT/debug':                             value => 'True';
      'database/connection':                       value => $neutron_sql_connection;
      'oslo_messaging_rabbit/rabbit_userid':       value => $rabbit_user;
      'oslo_messaging_rabbit/rabbit_password':     value => $rabbit_password;
      'apic/apic_hosts':                           value => $aci_apic_hosts;
      'apic/apic_username':                        value => $aci_apic_username;
      'apic/apic_password':                        value => $aci_apic_password;
-     'apic/apic_use_ssl':                         value => True;
-     'apic/verify_ssl_certificate':               value => False;
-     'apic/scope_names':                          value => False;
+     'apic/apic_use_ssl':                         value => 'True';
+     'apic/verify_ssl_certificate':               value => 'False';
+     'apic/scope_names':                          value => 'False';
   }  
 
   aimctl_config {
      'DEFAULT/apic_system_id':                    value => $aci_apic_system_id;
      "apic_vmdom:$aci_apic_systemid/encap_mode":  value => $aci_encap_mode;
      'apic/apic_entity_profile':                  value => $aci_apic_aep;
-     'apic/scope_infra':                          value => False;
-     'apic/apic_provision_infra':                 value => False;
-     'apic/apic_provision_hostlinks':             value => False;
+     'apic/scope_infra':                          value => 'False';
+     'apic/apic_provision_infra':                 value => 'False';
+     'apic/apic_provision_hostlinks':             value => 'False';
   }
  
   if $aci_encap_mode == 'vlan' {

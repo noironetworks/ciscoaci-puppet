@@ -9,6 +9,7 @@ class ciscoaci::aim(
 {
    include ::neutron::deps
    include ::ciscoaci::deps
+   include ::ciscoaci::params
 
    #package {'aci-neutron-ml2-package':
    #  ensure => $package_ensure,
@@ -16,6 +17,12 @@ class ciscoaci::aim(
    #  tag    => ['neutron-support-package', 'openstack']
    #}
 
+   package {'apicapi-package':
+     ensure => $package_ensure,
+     name   => $::ciscoaci::params::apicapi_package,
+     tag    => ['neutron-support-package', 'openstack']
+   }
+ 
    package {'aci-neutron-gbp-package':
      ensure => $package_ensure,
      name   => $::ciscoaci::params::aci_neutron_gbp_package,
@@ -86,15 +93,15 @@ class ciscoaci::aim(
      enable      => $host_agent_enabled,
      hasstatus   => true,
      hasrestart  => true,
-     require     => Package['aci-neutron-ml2-package'],
+     require     => Package['aci-neutron-opflex-agent-package'],
    }
-   service { 'neutron-cisco-apic-service-agent':
-     ensure      => $svc_agent_ensure,
-     enable      => $svc_agent_enabled,
-     hasstatus   => true,
-     hasrestart  => true,
-     require     => Package['aci-neutron-ml2-package'],
-   }
+   #service { 'neutron-cisco-apic-service-agent':
+   #  ensure      => $svc_agent_ensure,
+   #  enable      => $svc_agent_enabled,
+   #  hasstatus   => true,
+   #  hasrestart  => true,
+   #  require     => Package['aci-neutron-opflex-agent-package'],
+   #}
 
    $keystone_auth_url = hiera('keystone::endpoint::admin_url')
    $keystone_admin_username = 'admin'
