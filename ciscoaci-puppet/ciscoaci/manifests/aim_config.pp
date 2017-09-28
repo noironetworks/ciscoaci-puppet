@@ -46,7 +46,7 @@ class ciscoaci::aim_config(
   }  
 
   aimctl_config {
-     'DEFAULT/apic_system_id':                    value => $aci_apic_system_id;
+     'DEFAULT/apic_system_id':                    value => $aci_apic_systemid;
      "apic_vmdom:$aci_apic_systemid/encap_mode":  value => $aci_encap_mode;
      'apic/apic_entity_profile':                  value => $aci_apic_aep;
      'apic/scope_infra':                          value => False;
