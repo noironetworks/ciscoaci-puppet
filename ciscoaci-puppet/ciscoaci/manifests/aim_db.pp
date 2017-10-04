@@ -4,20 +4,6 @@ class ciscoaci::aim_db(
      include ::neutron::deps
      include ::ciscoaci::deps
 
-#     exec { 'apic-ml2-db-sync':
-#       command     => '/bin/apic-ml2-db-manage --config-file /etc/neutron/neutron.conf upgrade head',
-#       logoutput   => on_failure,
-#       #require     => Package['aci-neutron-ml2-package'],
-#       subscribe   => [
-#         Anchor['neutron::install::end'],
-#         Anchor['neutron::config::end'],
-#         Anchor['neutron::dbsync::begin'],
-#         Exec['neutron-db-sync']
-#       ],
-#       notify      => Anchor['neutron::dbsync::end'],
-#       refreshonly => true
-#     }
-
      exec { 'gbp-db-sync':
        command     => '/bin/gbp-db-manage --config-file /etc/neutron/neutron.conf upgrade head',
        logoutput   => on_failure,

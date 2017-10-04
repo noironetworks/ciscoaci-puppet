@@ -9,7 +9,7 @@ class ciscoaci::opflex(
 
   $opflex_log_level = 'debug2',
   $opflex_peer_port = '8009',
-  $opflex_ssl_mode = 'enabled',
+  $opflex_ssl_mode = 'encrypted',
   $opflex_endpoint_dir = '/var/lib/opflex-agent-ovs/endpoints',
   $opflex_encap_iface = 'br-int_vxlan0',
   $opflex_remote_port = '8472',
@@ -30,37 +30,6 @@ class ciscoaci::opflex(
      $real_opflex_uplink_iface = "${aci_opflex_uplink_interface}.{$aci_apic_infravlan}"
    }
 
-#   define setup_dhclient_file($real_opflex_uplink_iface) {
-#     #$searchstr = "macaddress_${real_opflex_uplink_iface}"
-#     #$macaddr = inline_template("<%= scope.lookupvar(@searchstr) %>")
-#     #$macaddr = generate("/bin/facter macaddress_$real_opflex_uplink_iface")
-#     #$macaddr = generate("/bin/cat", "/sys/class/net/$real_opflex_uplink_iface/address")
-#  
-#      if($::osfamily == 'Redhat') {
-#        $cmdstr = "/bin/bash -c '_xyz=`/bin/cat /sys/class/net/${real_opflex_uplink_iface}/address`; printf \"send dhcp-client-identifier 01:%s;\" \$_xyz > /etc/dhcp/dhclient-${real_opflex_uplink_iface}.conf' "
-# 
-#        exec {'dhclient-file':
-#          command => $cmdstr,
-#        }
-# 
-#      } elsif($::osfamily == 'Debian') {
-#      }
-#   }
-
-#   define setup_ovs_patch_port($source_bridge, $target_bridge, $br_dependency) {
-#     $patch_port_from = "${source_bridge}_to_${target_bridge}"
-#     $patch_port_to = "${target_bridge}_to_${source_bridge}"
-#     file { "$patch_port_from":
-#       path    => "/etc/sysconfig/network-scripts/ifcfg-$patch_port_from",
-#       mode    => '0644',
-#       content => template('ciscoaci/ovs-patch-intf.erb'),
-#     }
-#     exec { "bringup_intf_${source_bridge}":
-#       command => "/usr/sbin/ifup $patch_port_from",
-#       require => [File["$patch_port_from"], Vs_bridge[$br_dependency]]
-#     }
-#   }
-
    if ($aci_opflex_encap_mode == 'vxlan') {
      file {'agent-conf':
        path => '/etc/opflex-agent-ovs/conf.d/opflex-agent-ovs.conf',
@@ -72,7 +41,7 @@ class ciscoaci::opflex(
    }
    elsif ($aci_opflex_encap_mode == 'vlan') {
      if $opflex_target_bridge_to_patch != '' {
-       $v_opflex_encap_iface = "${aci_opflex_ovs_bridge}_to_${opflex_target_bridge_to_patch}"
+       $v_opflex_encap_iface = sprintf('%s_to_%s', $aci_opflex_ovs_bridge[0,5],$opflex_target_bridge_to_patch[0,5])
        ciscoaci::setup_ovs_patch_port{ 'source':
          source_bridge => $aci_opflex_ovs_bridge,
          target_bridge => $opflex_target_bridge_to_patch,
@@ -131,9 +100,6 @@ class ciscoaci::opflex(
      require  => Ciscoaci::Setup_dhclient_file['dummy'], 
    }
 
-   #exec {'fix_iptables':
-   #   command => "/usr/sbin/iptables -I INPUT -p udp -m multiport --dports 8472 -m comment --comment \"vxlan\" -m state --state NEW -j ACCEPT",
-   #}
    firewall {'997 vxlan 8472':
       action => 'accept',
       dport  => '8472',

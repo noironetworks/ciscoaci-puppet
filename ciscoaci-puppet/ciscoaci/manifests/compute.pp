@@ -6,12 +6,6 @@ class ciscoaci::compute(
    include ::neutron::deps
    include ::ciscoaci::deps
 
-   #package {'aci-neutron-ml2-package':
-   #  ensure => $package_ensure,
-   #  name   => $::ciscoaci::params::aci_neutron_ml2_package,
-   #  tag    => ['neutron-support-package', 'openstack']
-   #}
-
    package {'aci-neutron-gbp-package':
      ensure => $package_ensure,
      name   => $::ciscoaci::params::aci_neutron_gbp_package,
@@ -72,13 +66,6 @@ class ciscoaci::compute(
      hasrestart  => true,
      require     => Package['aci-neutron-opflex-agent-package'],
    }
-   #service { 'neutron-cisco-apic-service-agent':
-   #  ensure      => 'stopped',
-   #  enable      => false,
-   #  hasstatus   => true,
-   #  hasrestart  => true,
-   #  require     => Package['aci-neutron-ml2-package'],
-   #}
 
    neutron_agent_ovs {
      'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver';
