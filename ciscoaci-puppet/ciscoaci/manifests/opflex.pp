@@ -100,10 +100,11 @@ class ciscoaci::opflex(
      require  => Ciscoaci::Setup_dhclient_file['dummy'], 
    }
 
-   firewall {'997 vxlan 8472':
+   firewall {'297 vxlan 8472':
       action => 'accept',
       dport  => '8472',
       proto  => 'udp',
+      state  => ['NEW'],
    }
 
    vs_bridge {$aci_opflex_ovs_bridge:
