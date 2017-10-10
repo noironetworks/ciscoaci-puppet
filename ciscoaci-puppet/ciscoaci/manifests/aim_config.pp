@@ -45,6 +45,7 @@ class ciscoaci::aim_config(
      'apic/apic_use_ssl':                         value => 'True';
      'apic/verify_ssl_certificate':               value => 'False';
      'apic/scope_names':                          value => $aci_scope_names;
+     'aim/aim_system_id':                         value => $aci_apic_systemid;
   }  
 
   aimctl_config {
