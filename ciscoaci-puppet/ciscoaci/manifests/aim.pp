@@ -1,6 +1,7 @@
 class ciscoaci::aim(
    $aci_apic_systemid,
    $package_ensure    = 'present',
+   $aci_mechanism_drivers = 'apic_aim',
    $use_lldp_discovery = true,
    $aci_optimized_metadata = true,
    $neutron_network_vlan_ranges = undef,
@@ -104,7 +105,7 @@ class ciscoaci::aim(
      'DEFAULT/apic_system_id':                  value => $aci_apic_systemid;
      'ml2/type_drivers':                        value => "opflex,local,flat,vlan,gre,vxlan";
      'ml2/tenant_network_types':                value => "opflex";
-     'ml2/mechanism_drivers':                   value => "apic_aim";
+     'ml2/mechanism_drivers':                   value => $aci_mechanism_drivers;
      'ml2/extension_drivers':                   value => "apic_aim,port_security";
      'ml2_apic_aim/enable_optimized_metadata':  value => $aci_optimized_metadata;
      'apic_aim_auth/auth_plugin':               value => 'v3password';
