@@ -45,8 +45,13 @@ class ciscoaci::aim_config(
      'apic/apic_hosts':                           value => $aci_apic_hosts;
      'apic/apic_username':                        value => $aci_apic_username;
      'apic/apic_password':                        value => $aci_apic_password;
+<<<<<<< HEAD
      'apic/apic_use_ssl':                         value => 'True';
      'apic/verify_ssl_certificate':               value => 'False';
+=======
+     'apic/apic_use_ssl':                         value => True;
+     'apic/verify_ssl_certificate':               value => False;
+>>>>>>> 77bfb68... provide option for scope_names and scope_infra
      'apic/scope_names':                          value => $aci_scope_names;
      'aim/aim_system_id':                         value => $aci_apic_systemid;
   }  
@@ -56,8 +61,13 @@ class ciscoaci::aim_config(
      "apic_vmdom:$aci_apic_systemid/encap_mode":  value => $aci_encap_mode;
      'apic/apic_entity_profile':                  value => $aci_apic_aep;
      'apic/scope_infra':                          value => $aci_scope_infra;
+<<<<<<< HEAD
      'apic/apic_provision_infra':                 value => 'False';
      'apic/apic_provision_hostlinks':             value => 'False';
+=======
+     'apic/apic_provision_infra':                 value => False;
+     'apic/apic_provision_hostlinks':             value => False;
+>>>>>>> 77bfb68... provide option for scope_names and scope_infra
   }
  
   if $aci_encap_mode == 'vlan' {
