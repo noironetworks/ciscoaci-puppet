@@ -16,6 +16,7 @@ class ciscoaci::aim_config(
   $use_lldp_discovery = true,
   $neutron_network_vlan_ranges = undef,
   $aci_host_links = {},
+  $physical_device_mappings = '',
 ) inherits ::ciscoaci::params
 {
 
@@ -97,4 +98,12 @@ class ciscoaci::aim_config(
        aci_host_links => $aci_host_links
      }
   }
+
+  if !empty($physical_device_mappings) {
+     $hosts = hiera('neutron_plugin_compute_ciscoaci_short_node_names', '')
+     ciscoaci::physnet_mapping{$hosts:
+       maps => $physical_device_mappings
+     }
+  }
+
 }
