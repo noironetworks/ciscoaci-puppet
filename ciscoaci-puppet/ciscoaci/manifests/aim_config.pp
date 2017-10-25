@@ -1,4 +1,5 @@
 class ciscoaci::aim_config(
+  $step  = hiera('step'),
   $aci_apic_systemid,
   $neutron_sql_connection,
   $rabbit_password                      = $::os_service_default,
@@ -99,11 +100,13 @@ class ciscoaci::aim_config(
      }
   }
 
-  if !empty($physical_device_mappings) {
-     $hosts = hiera('neutron_plugin_compute_ciscoaci_short_node_names', '')
-     ciscoaci::physnet_mapping{$hosts:
-       maps => $physical_device_mappings
-     }
+  if $step >= 5 {
+    if !empty($physical_device_mappings) {
+       $hosts = hiera('neutron_plugin_compute_ciscoaci_short_node_names', '')
+       ciscoaci::physnet_mapping{$hosts:
+         maps => $physical_device_mappings
+       }
+    }
   }
 
 }
