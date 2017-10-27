@@ -12,14 +12,16 @@ class ciscoaci::aim_config(
   $aci_apic_aep,
   $aci_vpc_pairs = undef,
   $aci_opflex_vlan_range = '',
+  $use_lldp_discovery = true,
+  $neutron_network_vlan_ranges = undef,
+  $aci_host_links = {},
+  $physical_device_mappings = '',
   $aci_scope_names = 'False',
   $aci_scope_infra = 'False',
   $use_lldp_discovery = true,
   $neutron_network_vlan_ranges = undef,
   $aci_host_links = {},
   $physical_device_mappings = '',
-  $aci_scope_names = 'False',
-  $aci_scope_infra = 'False'
 ) inherits ::ciscoaci::params
 {
 
