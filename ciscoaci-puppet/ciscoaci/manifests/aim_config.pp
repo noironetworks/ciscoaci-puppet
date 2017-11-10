@@ -99,7 +99,7 @@ class ciscoaci::aim_config(
   if $step >= 5 {
     if !empty($physical_device_mappings) {
        $hosts = hiera('neutron_plugin_compute_ciscoaci_short_node_names', '')
-       $dummy = phsynet_map($hosts, $physical_device_mappings)
+       $dummy = physnet_map($hosts, $physical_device_mappings)
     }
   }
 
