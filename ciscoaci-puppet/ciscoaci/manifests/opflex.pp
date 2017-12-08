@@ -4,14 +4,14 @@ class ciscoaci::opflex(
   $aci_apic_infra_subnet_gateway = '10.0.0.30',
   $aci_apic_infra_anycast_address = '10.0.0.32',
   $aci_apic_infravlan = '4093',
-  $aci_opflex_ovs_bridge = 'br-int',
+  $aci_opflex_ovs_bridge = 'br-fabric',
   $aci_opflex_encap_mode = 'vxlan',
 
   $opflex_log_level = 'debug2',
   $opflex_peer_port = '8009',
-  $opflex_ssl_mode = 'enabled',
+  $opflex_ssl_mode = 'encrypted',
   $opflex_endpoint_dir = '/var/lib/opflex-agent-ovs/endpoints',
-  $opflex_encap_iface = 'br-int_vxlan0',
+  $opflex_encap_iface = 'br-fab_vxlan0',
   $opflex_remote_port = '8472',
   $opflex_virtual_router = 'true',
   $opflex_router_advertisement = 'false',
@@ -46,8 +46,8 @@ class ciscoaci::opflex(
    }
 
    define setup_ovs_patch_port($source_bridge, $target_bridge, $br_dependency) {
-     $patch_port_from = "${source_bridge}_to_${target_bridge}"
-     $patch_port_to = "${target_bridge}_to_${source_bridge}"
+     $patch_port_from = sprintf('%s_to_%s', inline_template('<%= @source_bridge[0,5] %>'), inline_template('<%= @target_bridge[0,5] %>'))
+     $patch_port_to = sprintf('%s_to_%s', inline_template('<%= @target_bridge[0,5] %>'), inline_template('<%= @source_bridge[0,5] %>'))
      file { "$patch_port_from":
        path    => "/etc/sysconfig/network-scripts/ifcfg-$patch_port_from",
        mode    => '0644',
@@ -70,7 +70,7 @@ class ciscoaci::opflex(
    }
    elsif ($aci_opflex_encap_mode == 'vlan') {
      if $opflex_target_bridge_to_patch != '' {
-       $v_opflex_encap_iface = "${aci_opflex_ovs_bridge}_to_${opflex_target_bridge_to_patch}"
+       $v_opflex_encap_iface = sprintf('%s_to_%s', inline_template('<%= @aci_opflex_ovs_bridge[0,5] %>'), inline_template('<%= @opflex_target_bridge_to_patch[0,5] %>'))
        setup_ovs_patch_port{ 'source':
          source_bridge => $aci_opflex_ovs_bridge,
          target_bridge => $opflex_target_bridge_to_patch,
@@ -89,7 +89,7 @@ class ciscoaci::opflex(
          tag    => 'neutron-config-file'
        }
      } else {
-       $v_opflex_encap_iface = $opflex_uplink_iface
+       $v_opflex_encap_iface = $aci_opflex_uplink_interface
        file {'agent-conf':
          path => '/etc/opflex-agent-ovs/conf.d/opflex-agent-ovs.conf',
          mode => '0644',
