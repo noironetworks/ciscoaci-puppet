@@ -6,6 +6,9 @@ class ciscoaci::aim(
    $aci_optimized_metadata = true,
    $neutron_network_vlan_ranges = undef,
    $sync_db = false,
+   $opflex_endpoint_request_timeout = 10,
+   $opflex_nat_mtu_size = 0,
+   $enable_keystone_notification_purge = true,
 ) inherits ::ciscoaci::params
 {
    include ::neutron::deps
@@ -108,6 +111,7 @@ class ciscoaci::aim(
      'ml2/mechanism_drivers':                   value => $aci_mechanism_drivers;
      'ml2/extension_drivers':                   value => "apic_aim,port_security";
      'ml2_apic_aim/enable_optimized_metadata':  value => $aci_optimized_metadata;
+     'ml2_apic_aim/enable_keystone_notification_purge': value => $enable_keystone_notification_purge;
      'apic_aim_auth/auth_plugin':               value => 'v3password';
      'apic_aim_auth/auth_url':                  value => "$keystone_auth_url/v3";
      'apic_aim_auth/username':                  value => $keystone_admin_username;
@@ -117,6 +121,8 @@ class ciscoaci::aim(
      'apic_aim_auth/project_name':              value => 'admin';
      'group_policy/policy_drivers':             value => 'aim_mapping';
      'group_policy/extension_drivers':          value => 'aim_extension,proxy_group,apic_allowed_vm_name,apic_segmentation_label';
+     'opflex/endpoint_request_timeout':         value => $opflex_endpoint_request_timeout;
+     'opflex/nat_mtu_size':                     value => $opflex_nat_mtu_size;
    }
 
    neutron_agent_ovs { 
