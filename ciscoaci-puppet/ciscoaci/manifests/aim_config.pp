@@ -83,7 +83,7 @@ class ciscoaci::aim_config(
   }
 
   $nvr = join(any2array($neutron_network_vlan_ranges), ',')
-  if $nvr != '' {
+  if $nvr != "[]" {
      class {'ciscoaci::aim_physdoms':
        neutron_network_vlan_ranges => $neutron_network_vlan_ranges,
        aci_host_links => $aci_host_links
