@@ -13,15 +13,11 @@ class ciscoaci::aim_config(
   $aci_vpc_pairs = undef,
   $aci_opflex_vlan_range = '',
   $use_lldp_discovery = true,
-  $neutron_network_vlan_ranges = undef,
   $aci_host_links = {},
   $physical_device_mappings = '',
   $aci_scope_names = 'False',
   $aci_scope_infra = 'False',
-  $use_lldp_discovery = true,
   $neutron_network_vlan_ranges = undef,
-  $aci_host_links = {},
-  $physical_device_mappings = '',
 ) inherits ::ciscoaci::params
 {
 
@@ -64,8 +60,6 @@ class ciscoaci::aim_config(
      'apic/scope_infra':                          value => $aci_scope_infra;
      'apic/apic_provision_infra':                 value => 'False';
      'apic/apic_provision_hostlinks':             value => 'False';
-     'apic/apic_provision_infra':                 value => False;
-     'apic/apic_provision_hostlinks':             value => False;
   }
  
   if $aci_encap_mode == 'vlan' {
