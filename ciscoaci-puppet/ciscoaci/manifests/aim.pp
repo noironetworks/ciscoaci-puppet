@@ -9,6 +9,10 @@ class ciscoaci::aim(
    $opflex_endpoint_request_timeout = 10,
    $opflex_nat_mtu_size = 0,
    $enable_keystone_notification_purge = true,
+   $type_drivers = "opflex,local,flat,vlan,gre,vxlan",
+   $tenant_network_types = "opflex",
+   $extension_drivers = "apic_aim,port_security",
+   $gbp_extension_drivers = "aim_extension,proxy_group,apic_allowed_vm_name,apic_segmentation_label",
 ) inherits ::ciscoaci::params
 {
    include ::neutron::deps
@@ -105,10 +109,10 @@ class ciscoaci::aim(
    $keystone_admin_password = hiera('keystone::roles::admin::password')
    neutron_plugin_cisco_aci{
      'DEFAULT/apic_system_id':                  value => $aci_apic_systemid;
-     'ml2/type_drivers':                        value => "opflex,local,flat,vlan,gre,vxlan";
-     'ml2/tenant_network_types':                value => "opflex";
+     'ml2/type_drivers':                        value => $type_drivers;
+     'ml2/tenant_network_types':                value => $tenant_network_types;
      'ml2/mechanism_drivers':                   value => $aci_mechanism_drivers;
-     'ml2/extension_drivers':                   value => "apic_aim,port_security";
+     'ml2/extension_drivers':                   value => $extension_drivers; 
      'ml2_apic_aim/enable_optimized_metadata':  value => $aci_optimized_metadata;
      'ml2_apic_aim/enable_keystone_notification_purge': value => $enable_keystone_notification_purge;
      'apic_aim_auth/auth_plugin':               value => 'v3password';
@@ -119,7 +123,7 @@ class ciscoaci::aim(
      'apic_aim_auth/project_domain_name':       value => 'default';
      'apic_aim_auth/project_name':              value => 'admin';
      'group_policy/policy_drivers':             value => 'aim_mapping';
-     'group_policy/extension_drivers':          value => 'aim_extension,proxy_group,apic_allowed_vm_name,apic_segmentation_label';
+     'group_policy/extension_drivers':          value => $gbp_extension_drivers;
      'opflex/endpoint_request_timeout':         value => $opflex_endpoint_request_timeout;
      'opflex/nat_mtu_size':                     value => $opflex_nat_mtu_size;
    }
@@ -129,7 +133,7 @@ class ciscoaci::aim(
    }
 
    $nvr = join(any2array($neutron_network_vlan_ranges), ',')
-   if $nvr != '' {
+   if $nvr != "[]" {
      neutron_plugin_cisco_aci{
        'ml2_type_vlan/network_vlan_ranges': value => $nvr;
      }
