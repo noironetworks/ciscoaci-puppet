@@ -6,8 +6,11 @@
        mode    => '0644',
        content => template('ciscoaci/ovs-patch-intf.erb'),
      }
+     if $br_dependency == '' {
+     } else {
      exec { "bringup_intf_${source_bridge}":
        command => "/usr/sbin/ifup $patch_port_from",
        require => [File["$patch_port_from"], Vs_bridge[$br_dependency]]
+     }
      }
    }

@@ -1,6 +1,7 @@
 class ciscoaci::compute(
    $package_ensure    = 'present',
    $use_lldp_discovery = true,
+   $use_openvswitch = false,
 ) inherits ::ciscoaci::params
 {
    include ::neutron::deps
@@ -18,10 +19,18 @@ class ciscoaci::compute(
      tag    => ['neutron-support-package', 'openstack']
    }
 
-   package {'aci-agent-ovs-package':
-     ensure => $package_ensure,
-     name   => $::ciscoaci::params::aci_agent_ovs_package,
-     tag    => ['neutron-support-package', 'openstack']
+   if $use_openvswitch == false {
+     package {'aci-agent-ovs-package':
+       ensure => $package_ensure,
+       name   => $::ciscoaci::params::aci_agent_ovs_package,
+       tag    => ['neutron-support-package', 'openstack']
+     }
+     service {'neutron-opflex-agent':
+       ensure => 'stopped',
+       enable => false,
+       hasstatus   => true,
+       hasrestart  => true,
+     }
    }
 
    package {'lldpd':
@@ -61,23 +70,41 @@ class ciscoaci::compute(
      require     => Package['aci-neutron-opflex-agent-package'],
    }
 
-   neutron_agent_ovs {
-     'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver';
+   if $use_openvswitch == false {
+      neutron_agent_ovs {
+        'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver';
+      }
+
+      class {'ciscoaci::opflex':
+      }
+    
+      service {'agent-ovs':
+        ensure => running,
+        enable => true,
+        tag    => ['neutron-service']
+      }
+    
+      service {'neutron-opflex-agent':
+        ensure => running,
+        enable => true,
+        tag    => ['neutron-service']
+      }
+   } else {
+      ciscoaci::setup_ovs_patch_port{ 'source':
+         source_bridge => 'br-ex',
+         target_bridge => 'br-int',
+         br_dependency => '',
+      }
+      ciscoaci::setup_ovs_patch_port{ 'target':
+         source_bridge => 'br-int',
+         target_bridge => 'br-ex',
+         br_dependency => '',
+      }
+      service {'neutron-opflex-agent':
+        ensure => stopped,
+        enable => false,
+        tag    => ['neutron-service']
+      }
    }
-
-  class {'ciscoaci::opflex':
-  }
-
-  service {'agent-ovs':
-    ensure => running,
-    enable => true,
-    tag    => ['neutron-service']
-  }
-
-  service {'neutron-opflex-agent':
-    ensure => running,
-    enable => true,
-    tag    => ['neutron-service']
-  }
 
 }
