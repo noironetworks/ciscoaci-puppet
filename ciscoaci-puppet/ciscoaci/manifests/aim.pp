@@ -14,6 +14,7 @@ class ciscoaci::aim(
    $extension_drivers = "apic_aim,port_security",
    $gbp_extension_drivers = "aim_extension,proxy_group,apic_allowed_vm_name,apic_segmentation_label",
    $use_openvswitch = false,
+   $intel_cna_nic_disable_lldp = true,
 ) inherits ::ciscoaci::params
 {
    include ::neutron::deps
@@ -37,24 +38,11 @@ class ciscoaci::aim(
        name   => $::ciscoaci::params::aci_neutron_opflex_agent_package,
        tag    => ['neutron-support-package', 'openstack']
    }
-   service { 'neutron-cisco-apic-host-agent':
-       ensure      => $host_agent_ensure,
-       enable      => $host_agent_enabled,
-       hasstatus   => true,
-       hasrestart  => true,
-       require     => Package['aci-neutron-opflex-agent-package'],
-   }
    if $use_openvswitch == false {
      package {'aci-agent-ovs-package':
        ensure => $package_ensure,
        name   => $::ciscoaci::params::aci_agent_ovs_package,
        tag    => ['neutron-support-package', 'openstack']
-     }
-     service {'neutron-opflex-agent':
-       ensure => 'stopped',
-       enable => false,
-       hasstatus   => true,
-       hasrestart  => true,
      }
    }
 
@@ -83,6 +71,26 @@ class ciscoaci::aim(
       $host_agent_enabled = true
       $svc_agent_ensure = 'running'
       $svc_agent_enabled = true
+      if $intel_cna_nic_disable_lldp == true {
+         $script = "#!/bin/bash
+if [ -d '/sys/kernel/debug/i40e' ]; then
+  for i in `ls /sys/kernel/debug/i40e` ; do
+     echo lldp stop >> /sys/kernel/debug/i40e/\${i}/command
+  done
+fi
+"
+
+        file {'scriptfile':
+          path => "/tmp/nic.sh",
+          mode => "0755",
+          content => $script
+        }
+
+        exec {'disableniclldp':
+          command => '/tmp/nic.sh ',
+          require => File['scriptfile']
+        }
+      }
    } else {
       $lldp_ensure = 'stopped'
       $lldp_enabled = false
@@ -98,6 +106,14 @@ class ciscoaci::aim(
      hasstatus   => true,
      hasrestart  => true,
      require     => Package['lldpd'],
+   }
+
+   service { 'neutron-cisco-apic-host-agent':
+       ensure      => $host_agent_ensure,
+       enable      => $host_agent_enabled,
+       hasstatus   => true,
+       hasrestart  => true,
+       require     => Package['aci-neutron-opflex-agent-package'],
    }
 
    $keystone_auth_url = hiera('keystone::endpoint::admin_url')
