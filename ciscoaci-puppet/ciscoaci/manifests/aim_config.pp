@@ -1,4 +1,5 @@
 class ciscoaci::aim_config(
+  $step  = hiera('step'),
   $aci_apic_systemid,
   $neutron_sql_connection,
   $rabbit_password                      = $::os_service_default,
@@ -11,8 +12,12 @@ class ciscoaci::aim_config(
   $aci_apic_aep,
   $aci_vpc_pairs = undef,
   $aci_opflex_vlan_range = '',
+  $use_lldp_discovery = true,
+  $aci_host_links = {},
+  $physical_device_mappings = '',
   $aci_scope_names = 'False',
   $aci_scope_infra = 'False',
+  $neutron_network_vlan_ranges = undef,
 ) inherits ::ciscoaci::params
 {
 
@@ -45,6 +50,7 @@ class ciscoaci::aim_config(
      'apic/apic_use_ssl':                         value => 'True';
      'apic/verify_ssl_certificate':               value => 'False';
      'apic/scope_names':                          value => $aci_scope_names;
+     'aim/aim_system_id':                         value => $aci_apic_systemid;
   }  
 
   aimctl_config {
@@ -66,6 +72,29 @@ class ciscoaci::aim_config(
      aimctl_config {
         'apic/apic_vpc_pairs':                       value => $aci_vpc_pairs;
      }
+  }
+  
+  if !$use_lldp_discovery {
+     if !empty($aci_host_links) {
+        ciscoaci::hostlinks {'xyz':
+          hl_a => $aci_host_links
+        }
+     }
+  }
+
+  $nvr = join(any2array($neutron_network_vlan_ranges), ',')
+  if $nvr != "[]" {
+     class {'ciscoaci::aim_physdoms':
+       neutron_network_vlan_ranges => $neutron_network_vlan_ranges,
+       aci_host_links => $aci_host_links
+     }
+  }
+
+  if $step >= 5 {
+    if !empty($physical_device_mappings) {
+       $hosts = hiera('neutron_plugin_compute_ciscoaci_short_node_names', '')
+       $dummy = physnet_map($hosts, $physical_device_mappings, $domain)
+    }
   }
 
 }

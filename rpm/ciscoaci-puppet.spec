@@ -1,5 +1,5 @@
 Name:           ciscoaci-puppet
-Version:        1.2
+Version:        11.0
 Release:        %{?release}%{!?release:1}
 Summary:        Puppet manifests for configuring Cisco Aci Openstack plugin
 License:        ASL 2.0
@@ -32,14 +32,18 @@ cp ciscoaci_heat.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/m
 cp ciscoaci_horizon.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
 
 %post
-ln -s /usr/share/openstack-puppet/modules/ciscoaci /etc/puppet/modules/ciscoaci
-ln -s /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci.pp /etc/puppet/modules/tripleo/manifests/profile/base/ciscoaci.pp
-ln -s /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_compute.pp /etc/puppet/modules/tripleo/manifests/profile/base/ciscoaci_compute.pp
-ln -s /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_horizon.pp /etc/puppet/modules/tripleo/manifests/profile/base/ciscoaci_horizon.pp
-ln -s /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_heat.pp /etc/puppet/modules/tripleo/manifests/profile/base/ciscoaci_heat.pp
+if [ "$1" = "1" ]; then
+   ln -s /usr/share/openstack-puppet/modules/ciscoaci /etc/puppet/modules/ciscoaci
+fi
 
 %postun
-unlink /etc/puppet/modules/ciscoaci
+if [ "$1" = "0" ]; then
+  # Perform tasks to prepare for the initial installation
+  unlink /etc/puppet/modules/ciscoaci
+elif [ "$1" = "2" ]; then
+  # Perform whatever maintenance must occur before the upgrade begins
+  echo ""
+fi
 
 %clean
 rm -rf $RPM_BUILD_ROOT

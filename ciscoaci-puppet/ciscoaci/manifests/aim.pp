@@ -1,10 +1,20 @@
 class ciscoaci::aim(
    $aci_apic_systemid,
    $package_ensure    = 'present',
+   $aci_mechanism_drivers = 'apic_aim',
    $use_lldp_discovery = true,
    $aci_optimized_metadata = true,
    $neutron_network_vlan_ranges = undef,
    $sync_db = false,
+   $opflex_endpoint_request_timeout = 10,
+   $opflex_nat_mtu_size = 0,
+   $enable_keystone_notification_purge = true,
+   $type_drivers = "opflex,local,flat,vlan,gre,vxlan",
+   $tenant_network_types = "opflex",
+   $extension_drivers = "apic_aim,port_security",
+   $gbp_extension_drivers = "aim_extension,proxy_group,apic_allowed_vm_name,apic_segmentation_label",
+   $use_openvswitch = false,
+   $intel_cna_nic_disable_lldp = true,
 ) inherits ::ciscoaci::params
 {
    include ::neutron::deps
@@ -23,16 +33,17 @@ class ciscoaci::aim(
      tag    => ['neutron-support-package', 'openstack']
    }
  
-   package {'aci-openvswitch-gbp-lib-package':
-     ensure => $package_ensure,
-     name   => $::ciscoaci::params::aci_openvswitch_gbp_lib_package,
-     tag    => ['neutron-support-package', 'openstack']
-   }
-
    package {'aci-neutron-opflex-agent-package':
-     ensure => $package_ensure,
-     name   => $::ciscoaci::params::aci_neutron_opflex_agent_package,
-     tag    => ['neutron-support-package', 'openstack']
+       ensure => $package_ensure,
+       name   => $::ciscoaci::params::aci_neutron_opflex_agent_package,
+       tag    => ['neutron-support-package', 'openstack']
+   }
+   if $use_openvswitch == false {
+     package {'aci-agent-ovs-package':
+       ensure => $package_ensure,
+       name   => $::ciscoaci::params::aci_agent_ovs_package,
+       tag    => ['neutron-support-package', 'openstack']
+     }
    }
 
    package {'aci-integration-module-package':
@@ -41,11 +52,6 @@ class ciscoaci::aim(
      tag    => ['neutron-support-package', 'openstack']
    }
 
-   package {'aci-agent-ovs-package':
-     ensure => $package_ensure,
-     name   => $::ciscoaci::params::aci_agent_ovs_package,
-     tag    => ['neutron-support-package', 'openstack']
-   }
 
    package {'aci-gbpclient-package':
      ensure => $package_ensure,
@@ -65,6 +71,26 @@ class ciscoaci::aim(
       $host_agent_enabled = true
       $svc_agent_ensure = 'running'
       $svc_agent_enabled = true
+      if $intel_cna_nic_disable_lldp == true {
+         $script = "#!/bin/bash
+if [ -d '/sys/kernel/debug/i40e' ]; then
+  for i in `ls /sys/kernel/debug/i40e` ; do
+     echo lldp stop >> /sys/kernel/debug/i40e/\${i}/command
+  done
+fi
+"
+
+        file {'scriptfile':
+          path => "/tmp/nic.sh",
+          mode => "0755",
+          content => $script
+        }
+
+        exec {'disableniclldp':
+          command => '/tmp/nic.sh ',
+          require => File['scriptfile']
+        }
+      }
    } else {
       $lldp_ensure = 'stopped'
       $lldp_enabled = false
@@ -83,30 +109,24 @@ class ciscoaci::aim(
    }
 
    service { 'neutron-cisco-apic-host-agent':
-     ensure      => $host_agent_ensure,
-     enable      => $host_agent_enabled,
-     hasstatus   => true,
-     hasrestart  => true,
-     require     => Package['aci-neutron-opflex-agent-package'],
+       ensure      => $host_agent_ensure,
+       enable      => $host_agent_enabled,
+       hasstatus   => true,
+       hasrestart  => true,
+       require     => Package['aci-neutron-opflex-agent-package'],
    }
-   #service { 'neutron-cisco-apic-service-agent':
-   #  ensure      => $svc_agent_ensure,
-   #  enable      => $svc_agent_enabled,
-   #  hasstatus   => true,
-   #  hasrestart  => true,
-   #  require     => Package['aci-neutron-opflex-agent-package'],
-   #}
 
    $keystone_auth_url = hiera('keystone::endpoint::admin_url')
    $keystone_admin_username = 'admin'
    $keystone_admin_password = hiera('keystone::roles::admin::password')
    neutron_plugin_cisco_aci{
      'DEFAULT/apic_system_id':                  value => $aci_apic_systemid;
-     'ml2/type_drivers':                        value => "opflex,local,flat,vlan,gre,vxlan";
-     'ml2/tenant_network_types':                value => "opflex";
-     'ml2/mechanism_drivers':                   value => "apic_aim";
-     'ml2/extension_drivers':                   value => "apic_aim,port_security";
+     'ml2/type_drivers':                        value => $type_drivers;
+     'ml2/tenant_network_types':                value => $tenant_network_types;
+     'ml2/mechanism_drivers':                   value => $aci_mechanism_drivers;
+     'ml2/extension_drivers':                   value => $extension_drivers; 
      'ml2_apic_aim/enable_optimized_metadata':  value => $aci_optimized_metadata;
+     'ml2_apic_aim/enable_keystone_notification_purge': value => $enable_keystone_notification_purge;
      'apic_aim_auth/auth_plugin':               value => 'v3password';
      'apic_aim_auth/auth_url':                  value => "$keystone_auth_url/v3";
      'apic_aim_auth/username':                  value => $keystone_admin_username;
@@ -115,15 +135,19 @@ class ciscoaci::aim(
      'apic_aim_auth/project_domain_name':       value => 'default';
      'apic_aim_auth/project_name':              value => 'admin';
      'group_policy/policy_drivers':             value => 'aim_mapping';
-     'group_policy/extension_drivers':          value => 'aim_extension,proxy_group,apic_allowed_vm_name,apic_segmentation_label';
+     'group_policy/extension_drivers':          value => $gbp_extension_drivers;
+     'opflex/endpoint_request_timeout':         value => $opflex_endpoint_request_timeout;
+     'opflex/nat_mtu_size':                     value => $opflex_nat_mtu_size;
    }
 
+   if $use_openvswitch == false {
    neutron_agent_ovs { 
      'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver';
    }
+   }
 
    $nvr = join(any2array($neutron_network_vlan_ranges), ',')
-   if $nvr != '' {
+   if $nvr != "[]" {
      neutron_plugin_cisco_aci{
        'ml2_type_vlan/network_vlan_ranges': value => $nvr;
      }
@@ -166,10 +190,24 @@ class ciscoaci::aim(
   class {'ciscoaci::aim_config':
   }
 
-  class {'ciscoaci::opflex':
+  if $use_openvswitch == false {
+    class {'ciscoaci::opflex':
+    }
+  } else {
+      ciscoaci::setup_ovs_patch_port{ 'source':
+         source_bridge => 'br-ex',
+         target_bridge => 'br-int',
+         br_dependency => '',
+       }
+       ciscoaci::setup_ovs_patch_port{ 'target':
+         source_bridge => 'br-int',
+         target_bridge => 'br-ex',
+         br_dependency => '',
+       }
   }
 
   class {'ciscoaci::aim_service':
+    use_openvswitch => $use_openvswitch,
   }
 
 }
