@@ -1,6 +1,8 @@
 class ciscoaci::compute(
    $package_ensure    = 'present',
    $use_lldp_discovery = true,
+   $use_openvswitch = false,
+   $intel_cna_nic_disable_lldp = true,
 ) inherits ::ciscoaci::params
 {
    include ::neutron::deps
@@ -18,10 +20,18 @@ class ciscoaci::compute(
      tag    => ['neutron-support-package', 'openstack']
    }
 
-   package {'aci-agent-ovs-package':
-     ensure => $package_ensure,
-     name   => $::ciscoaci::params::aci_agent_ovs_package,
-     tag    => ['neutron-support-package', 'openstack']
+   if $use_openvswitch == false {
+     package {'aci-agent-ovs-package':
+       ensure => $package_ensure,
+       name   => $::ciscoaci::params::aci_agent_ovs_package,
+       tag    => ['neutron-support-package', 'openstack']
+     }
+     service {'neutron-opflex-agent':
+       ensure => 'stopped',
+       enable => false,
+       hasstatus   => true,
+       hasrestart  => true,
+     }
    }
 
    package {'lldpd':
@@ -36,6 +46,26 @@ class ciscoaci::compute(
       $host_agent_enabled = true
       $svc_agent_ensure = 'running'
       $svc_agent_enabled = true
+      if $intel_cna_nic_disable_lldp == true {
+         $script = "#!/bin/bash
+if [ -d '/sys/kernel/debug/i40e' ]; then
+  for i in `ls /sys/kernel/debug/i40e` ; do
+     echo lldp stop >> /sys/kernel/debug/i40e/\${i}/command
+  done
+fi
+"
+
+        file {'scriptfile':
+          path => "/tmp/nic.sh",
+          mode => "0755",
+          content => $script
+        }
+
+        exec {'disableniclldp':
+          command => '/tmp/nic.sh ',
+          require => File['scriptfile']
+        }
+      }
    } else {
       $lldp_ensure = 'stopped'
       $lldp_enabled = false
@@ -53,31 +83,52 @@ class ciscoaci::compute(
      require     => Package['lldpd'],
    }
 
+   exec {'patchfix':
+     command => "/usr/bin/touch /etc/neutron/plugins/ml2/ml2_conf_cisco_apic.ini"
+   }
    service { 'neutron-cisco-apic-host-agent':
      ensure      => $host_agent_ensure,
      enable      => $host_agent_enabled,
      hasstatus   => true,
      hasrestart  => true,
-     require     => Package['aci-neutron-opflex-agent-package'],
+     require     => [Package['aci-neutron-opflex-agent-package'], Exec['patchfix']],
    }
 
-   neutron_agent_ovs {
-     'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver';
+   if $use_openvswitch == false {
+      neutron_agent_ovs {
+        'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver';
+      }
+
+      class {'ciscoaci::opflex':
+      }
+    
+      service {'agent-ovs':
+        ensure => running,
+        enable => true,
+        tag    => ['neutron-service']
+      }
+    
+      service {'neutron-opflex-agent':
+        ensure => running,
+        enable => true,
+        tag    => ['neutron-service']
+      }
+   } else {
+      ciscoaci::setup_ovs_patch_port{ 'source':
+         source_bridge => 'br-ex',
+         target_bridge => 'br-int',
+         br_dependency => '',
+      }
+      ciscoaci::setup_ovs_patch_port{ 'target':
+         source_bridge => 'br-int',
+         target_bridge => 'br-ex',
+         br_dependency => '',
+      }
+      service {'neutron-opflex-agent':
+        ensure => stopped,
+        enable => false,
+        tag    => ['neutron-service']
+      }
    }
-
-  class {'ciscoaci::opflex':
-  }
-
-  service {'agent-ovs':
-    ensure => running,
-    enable => true,
-    tag    => ['neutron-service']
-  }
-
-  service {'neutron-opflex-agent':
-    ensure => running,
-    enable => true,
-    tag    => ['neutron-service']
-  }
 
 }
