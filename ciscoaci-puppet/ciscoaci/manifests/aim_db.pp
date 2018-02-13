@@ -1,4 +1,5 @@
 class ciscoaci::aim_db(
+  $use_openvswitch  = false,
 ) inherits ::ciscoaci::params
 {
      include ::neutron::deps
@@ -43,5 +44,19 @@ class ciscoaci::aim_db(
      exec {'aim-load-domains':
        command => "/usr/bin/aimctl manager load-domains --enforce",
        require => Exec['aim-config-update'],
+     }
+
+     if $use_openvswitch == true {
+        exec {'sfc-db-migrate':
+           command  => "/usr/bin/neutron-db-manage --subproject networking-sfc upgrade head",
+           require  => Package['aci-integration-module-package'],
+           subscribe   => [
+             Anchor['neutron::install::end'],
+             Anchor['neutron::config::end'],
+             Anchor['neutron::dbsync::begin'],
+           ],
+           notify  => Anchor['neutron::dbsync::end'],
+           refreshonly => true
+        }
      }
 }

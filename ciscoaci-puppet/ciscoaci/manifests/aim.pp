@@ -44,6 +44,12 @@ class ciscoaci::aim(
        name   => $::ciscoaci::params::aci_agent_ovs_package,
        tag    => ['neutron-support-package', 'openstack']
      }
+   } else {
+     package {'networking-sfc-package':
+       ensure => $package_ensure,
+       name   => $::ciscoaci::params::networking_sfc_package,
+       tag    => ['neutron-support-package', 'openstack']
+     }
    }
 
    package {'aci-integration-module-package':
@@ -141,9 +147,16 @@ fi
    }
 
    if $use_openvswitch == false {
-   neutron_agent_ovs { 
-     'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver';
+      neutron_agent_ovs { 
+        'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver';
+      }
    }
+
+   if $use_openvswitch == true {
+      neutron_plugin_cisco_aci {
+        'sfc/drivers':    value => 'aim';
+        'flowclassifier/drivers': value => 'aim';
+      }
    }
 
    $nvr = join(any2array($neutron_network_vlan_ranges), ',')
@@ -183,6 +196,7 @@ fi
   #dbsync
   if $sync_db {
      class {'ciscoaci::aim_db': 
+        use_openvswitch => $use_openvswitch,
      }
   }
 

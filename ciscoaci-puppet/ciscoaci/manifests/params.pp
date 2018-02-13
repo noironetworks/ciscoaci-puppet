@@ -14,5 +14,6 @@ class ciscoaci::params {
      $aci_heat_package = 'openstack-heat-gbp'
      $apicapi_package = 'apicapi'
      $aci_neutron_config_file = '/etc/neutron/plugins/ml2/ml2_conf_cisco_apic.ini'
+     $networking_sfc_package = 'python2-networking-sfc'
   }
 }
