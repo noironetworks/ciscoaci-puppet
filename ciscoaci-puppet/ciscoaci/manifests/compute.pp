@@ -32,12 +32,6 @@ class ciscoaci::compute(
        name   => $::ciscoaci::params::aci_agent_ovs_package,
        tag    => ['neutron-support-package', 'openstack']
      }
-     service {'neutron-opflex-agent':
-       ensure => 'stopped',
-       enable => false,
-       hasstatus   => true,
-       hasrestart  => true,
-     }
    }
 
    package {'lldpd':
