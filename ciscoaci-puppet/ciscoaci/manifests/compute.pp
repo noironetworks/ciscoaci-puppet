@@ -83,15 +83,12 @@ fi
      require     => Package['lldpd'],
    }
 
-   exec {'patchfix':
-     command => "/usr/bin/touch /etc/neutron/plugins/ml2/ml2_conf_cisco_apic.ini"
-   }
    service { 'neutron-cisco-apic-host-agent':
      ensure      => $host_agent_ensure,
      enable      => $host_agent_enabled,
      hasstatus   => true,
      hasrestart  => true,
-     require     => [Package['aci-neutron-opflex-agent-package'], Exec['patchfix']],
+     require     => Package['aci-neutron-opflex-agent-package','aci-neutron-ml2-package'],
    }
 
    if $use_openvswitch == false {
