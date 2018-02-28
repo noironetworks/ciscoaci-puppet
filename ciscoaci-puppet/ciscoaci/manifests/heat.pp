@@ -9,4 +9,8 @@ class ciscoaci::heat(
      tag     => ['heat-package', 'openstack'],
      require => Package['heat-common']
    }
+
+   heat_config {
+     'DEFAULT/plugin_dirs':  value => "/usr/lib64/heat,/usr/lib/heat,/usr/local/lib/heat,/usr/local/lib64/heat,/usr/lib/python2.7/site-packages/gbpautomation/heat";
+   }
 }
