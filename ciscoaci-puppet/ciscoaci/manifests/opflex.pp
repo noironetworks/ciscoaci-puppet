@@ -118,6 +118,12 @@ class ciscoaci::opflex(
    }
 
    if ($aci_opflex_encap_mode == 'vxlan') {
+      #remove any old br-int_vxlanO ports during upgrade
+      exec {'delete_old_vxlan_port':
+        command => "/usr/bin/ovs-vsctl del-port br-int br-int_vxlan0",
+        onlyif => "/usr/bin/ovs-vsctl show | /bin/grep br-int_vxlan0",
+      }
+
       exec {'add_vxlan_port':
          command => "/usr/bin/ovs-vsctl add-port $aci_opflex_ovs_bridge $opflex_encap_iface -- set Interface $opflex_encap_iface type=vxlan options:remote_ip=flow options:key=flow options:dst_port=8472",
          unless => "/usr/bin/ovs-vsctl show | /bin/grep $opflex_encap_iface ",
