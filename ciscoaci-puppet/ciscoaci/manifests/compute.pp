@@ -20,20 +20,6 @@ class ciscoaci::compute(
      tag    => ['neutron-support-package', 'openstack']
    }
  
-   package {'aci-neutron-opflex-agent-package':
-     ensure => $package_ensure,
-     name   => $::ciscoaci::params::aci_neutron_opflex_agent_package,
-     tag    => ['neutron-support-package', 'openstack']
-   }
-
-   if $use_openvswitch == false {
-     package {'aci-agent-ovs-package':
-       ensure => $package_ensure,
-       name   => $::ciscoaci::params::aci_agent_ovs_package,
-       tag    => ['neutron-support-package', 'openstack']
-     }
-   }
-
    package {'lldpd':
      ensure => $package_ensure,
      tag    => ['neutron-support-package', 'openstack']
@@ -99,17 +85,6 @@ fi
       class {'ciscoaci::opflex':
       }
     
-      service {'agent-ovs':
-        ensure => running,
-        enable => true,
-        tag    => ['neutron-service']
-      }
-    
-      service {'neutron-opflex-agent':
-        ensure => running,
-        enable => true,
-        tag    => ['neutron-service']
-      }
    } else {
       ciscoaci::setup_ovs_patch_port{ 'source':
          source_bridge => 'br-ex',

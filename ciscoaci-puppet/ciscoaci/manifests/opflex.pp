@@ -22,6 +22,36 @@ class ciscoaci::opflex(
   $opflex_target_bridge_to_patch = 'br-ex',
 ) {
 
+   package {'aci-neutron-opflex-agent-package':
+       ensure => $package_ensure,
+       name   => $::ciscoaci::params::aci_neutron_opflex_agent_package,
+       notify => Service['neutron-opflex-agent'],
+       tag    => ['neutron-support-package', 'openstack']
+   }
+
+   package {'aci-agent-ovs-package':
+       ensure => $package_ensure,
+       name   => $::ciscoaci::params::aci_agent_ovs_package,
+       notify => Service['agent-ovs'],
+       tag    => ['neutron-support-package', 'openstack']
+   }
+
+   service {'agent-ovs':
+       ensure => running,
+       enable => true,
+       notify => Service['mcast-daemon'],
+   }
+
+   service {'mcast-daemon':
+       ensure => running,
+       enable => true,
+   }
+
+   service {'neutron-opflex-agent':
+       ensure => running,
+       enable => true,
+   }
+
    if($::osfamily == 'Redhat') {
      $real_opflex_uplink_iface = "vlan${aci_apic_infravlan}"
    } elsif ($::osfamily == 'Debian') {
@@ -127,6 +157,7 @@ class ciscoaci::opflex(
    exec {'toggle_iface':
      command  => "/sbin/ifdown $real_opflex_uplink_iface; sleep 15; /sbin/ifup $real_opflex_uplink_iface",
      require  => Setup_dhclient_file['dummy'], 
+     notify   => Service['mcast-daemon'],
    }
 
    #exec {'fix_iptables':

@@ -32,19 +32,6 @@ class ciscoaci::aim(
      tag    => ['neutron-support-package', 'openstack']
    }
  
-   package {'aci-neutron-opflex-agent-package':
-       ensure => $package_ensure,
-       name   => $::ciscoaci::params::aci_neutron_opflex_agent_package,
-       tag    => ['neutron-support-package', 'openstack']
-   }
-   if $use_openvswitch == false {
-     package {'aci-agent-ovs-package':
-       ensure => $package_ensure,
-       name   => $::ciscoaci::params::aci_agent_ovs_package,
-       tag    => ['neutron-support-package', 'openstack']
-     }
-   }
-
    package {'aci-integration-module-package':
      ensure => $package_ensure,
      name   => $::ciscoaci::params::aci_integration_module_package,
