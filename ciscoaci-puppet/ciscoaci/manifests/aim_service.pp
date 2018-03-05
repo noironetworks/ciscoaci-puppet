@@ -23,24 +23,4 @@ class ciscoaci::aim_service(
         tag    => ['neutron-service']
     }
 
-    if $use_openvswitch == false {
-       service {'agent-ovs':
-           ensure => running,
-           enable => true,
-           tag    => ['neutron-service']
-       } 
-   
-       service {'neutron-opflex-agent':
-           ensure => running,
-           enable => true,
-           tag    => ['neutron-service']
-       } 
-    } else {
-       service {'neutron-opflex-agent':
-      	 ensure => stopped,
-	 enable => false,
-         tag    => ['neutron-service']
-       } 
-    }
-
 }
