@@ -59,6 +59,7 @@ class ciscoaci::opflex(
        mode => '0644',
        content => template('ciscoaci/opflex-agent-ovs.conf.erb'),
        require => Package['aci-agent-ovs-package'],
+       notify => Service['agent-ovs','mcast-daemon'],
        tag    => 'neutron-config-file'
      }
    }
@@ -80,6 +81,7 @@ class ciscoaci::opflex(
          mode => '0644',
          content => template('ciscoaci/opflex-agent-ovs-vlan.conf.erb'),
          require => Package['aci-agent-ovs-package'],
+         notify => Service['agent-ovs','mcast-daemon'],
          tag    => 'neutron-config-file'
        }
      } else {
@@ -89,6 +91,7 @@ class ciscoaci::opflex(
          mode => '0644',
          content => template('ciscoaci/opflex-agent-ovs-vlan.conf.erb'),
          require => Package['aci-agent-ovs-package'],
+         notify => Service['agent-ovs','mcast-daemon'],
          tag    => 'neutron-config-file'
        }
      }

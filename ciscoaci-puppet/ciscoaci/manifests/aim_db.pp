@@ -42,7 +42,7 @@ class ciscoaci::aim_db(
      }
 
      exec {'aim-load-domains':
-       command => "/usr/bin/aimctl manager load-domains --enforce",
+       command => "/usr/bin/aimctl manager load-domains",
        require => Exec['aim-config-update'],
      }
 
