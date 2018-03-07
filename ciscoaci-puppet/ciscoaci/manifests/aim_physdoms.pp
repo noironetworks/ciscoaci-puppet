@@ -6,7 +6,8 @@ class ciscoaci::aim_physdoms(
 
   validate_network_vlan_ranges($neutron_network_vlan_ranges)
   $hosts = collect_hostnames($aci_host_links)
-  ciscoaci::physdom {$neutron_network_vlan_ranges:
+  $physnets = collect_physnets($neutron_network_vlan_ranges)
+  ciscoaci::physdom {$physnets:
      hosts => $hosts
   }
 
