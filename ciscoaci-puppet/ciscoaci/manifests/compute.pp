@@ -24,6 +24,12 @@ class ciscoaci::compute(
      ensure => $package_ensure,
      tag    => ['neutron-support-package', 'openstack']
    }
+ 
+   package {'apicapi-package':
+     ensure => $package_ensure,
+     name   => $::ciscoaci::params::apicapi_package,
+     tag    => ['neutron-support-package', 'openstack']
+   }
 
    if $use_lldp_discovery {
       $lldp_ensure = 'running'
