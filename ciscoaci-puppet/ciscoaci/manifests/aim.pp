@@ -142,7 +142,7 @@ fi
    }
 
    if lstrip($aci_external_routed_domain) != "" {
-      $l3domdn = sprintf('l3dom-%s' % $aci_external_routed_domain)
+      $l3domdn = join(["l3dom-" , $aci_external_routed_domain])
       neutron_plugin_cisco_aci {
          'ml2_apic_aim/l3_domain_dn':      value => $l3domdn;
       }
