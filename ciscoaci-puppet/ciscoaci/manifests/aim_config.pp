@@ -18,6 +18,7 @@ class ciscoaci::aim_config(
   $aci_scope_names = 'False',
   $aci_scope_infra = 'False',
   $neutron_network_vlan_ranges = undef,
+  $use_openvswitch = false,
 ) inherits ::ciscoaci::params
 {
 
@@ -55,11 +56,16 @@ class ciscoaci::aim_config(
 
   aimctl_config {
      'DEFAULT/apic_system_id':                    value => $aci_apic_systemid;
-     "apic_vmdom:$aci_apic_systemid/encap_mode":  value => $aci_encap_mode;
      'apic/apic_entity_profile':                  value => $aci_apic_aep;
      'apic/scope_infra':                          value => $aci_scope_infra;
      'apic/apic_provision_infra':                 value => 'False';
      'apic/apic_provision_hostlinks':             value => 'False';
+  }
+ 
+  if $use_openvswitch == false {
+     aimctl_config {
+       "apic_vmdom:$aci_apic_systemid/encap_mode":  value => $aci_encap_mode;
+     }
   }
  
   if $aci_encap_mode == 'vlan' {
