@@ -15,6 +15,7 @@ class ciscoaci::aim(
    $gbp_extension_drivers = "aim_extension,proxy_group,apic_allowed_vm_name,apic_segmentation_label",
    $use_openvswitch = false,
    $intel_cna_nic_disable_lldp = true,
+   $aci_external_routed_domain = "",
 ) inherits ::ciscoaci::params
 {
    include ::neutron::deps
@@ -138,6 +139,13 @@ fi
      'group_policy/extension_drivers':          value => $gbp_extension_drivers;
      'opflex/endpoint_request_timeout':         value => $opflex_endpoint_request_timeout;
      'opflex/nat_mtu_size':                     value => $opflex_nat_mtu_size;
+   }
+
+   if lstrip($aci_external_routed_domain) != "" {
+      $l3domdn = sprintf('l3dom-%s' % $aci_external_routed_domain)
+      neutron_plugin_cisco_aci {
+         'ml2_apic_aim/l3_domain_dn':      value => $l3domdn;
+      }
    }
 
    if $use_openvswitch == false {
