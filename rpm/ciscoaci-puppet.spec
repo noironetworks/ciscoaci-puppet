@@ -1,5 +1,5 @@
 Name:           ciscoaci-puppet
-Version:        11.0
+Version:        12.0
 Release:        %{?release}%{!?release:1}
 Summary:        Puppet manifests for configuring Cisco Aci Openstack plugin
 License:        ASL 2.0
@@ -28,8 +28,6 @@ rm -rf $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/prof
 mkdir -p $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
 cp ciscoaci.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
 cp ciscoaci_compute.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
-cp ciscoaci_heat.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
-cp ciscoaci_horizon.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
 
 %post
 if [ "$1" = "1" ]; then
@@ -53,5 +51,3 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/openstack-puppet/modules/ciscoaci
 /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci.pp
 /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_compute.pp
-/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_horizon.pp
-/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_heat.pp

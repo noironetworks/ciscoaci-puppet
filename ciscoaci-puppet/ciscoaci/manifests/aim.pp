@@ -38,12 +38,10 @@ class ciscoaci::aim(
        name   => $::ciscoaci::params::aci_neutron_opflex_agent_package,
        tag    => ['neutron-support-package', 'openstack']
    }
-   if $use_openvswitch == true {
-     package {'networking-sfc-package':
+   package {'networking-sfc-package':
        ensure => $package_ensure,
        name   => $::ciscoaci::params::networking_sfc_package,
        tag    => ['neutron-support-package', 'openstack']
-     }
    }
 
    package {'aci-integration-module-package':
