@@ -18,6 +18,7 @@ class ciscoaci::aim_config(
   $aci_scope_names = 'False',
   $aci_scope_infra = 'False',
   $neutron_network_vlan_ranges = undef,
+  $aci_aim_debug = 'False',
 ) inherits ::ciscoaci::params
 {
 
@@ -40,7 +41,7 @@ class ciscoaci::aim_config(
   }
 
   aim_conf {
-     'DEFAULT/debug':                             value => 'True';
+     'DEFAULT/debug':                             value => $aci_aim_debug;
      'DEFAULT/logging_default_format_string':     value => '"%(asctime)s.%(msecs)03d %(process)d %(thread)d %(levelname)s %(name)s [-] %(instance)s%(message)s"';
 
      'database/connection':                       value => $neutron_sql_connection;
