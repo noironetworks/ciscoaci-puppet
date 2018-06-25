@@ -18,6 +18,7 @@ class ciscoaci::aim_config(
   $physical_device_mappings = '',
   $aci_scope_names = 'False',
   $aci_scope_infra = 'False'
+  $aci_aim_debug = 'False',
 ) inherits ::ciscoaci::params
 {
 
@@ -40,7 +41,7 @@ class ciscoaci::aim_config(
   }
 
   aim_conf {
-     'DEFAULT/debug':                             value => True;
+     'DEFAULT/debug':                             value => $aci_aim_debug;
      'database/connection':                       value => $neutron_sql_connection;
      'oslo_messaging_rabbit/rabbit_userid':       value => $rabbit_user;
      'oslo_messaging_rabbit/rabbit_password':     value => $rabbit_password;
