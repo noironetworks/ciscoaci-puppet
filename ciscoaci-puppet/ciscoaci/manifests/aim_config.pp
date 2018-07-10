@@ -17,7 +17,7 @@ class ciscoaci::aim_config(
   $aci_host_links = {},
   $physical_device_mappings = '',
   $aci_scope_names = 'False',
-  $aci_scope_infra = 'False'
+  $aci_scope_infra = 'False',
   $aci_aim_debug = 'False',
 ) inherits ::ciscoaci::params
 {
