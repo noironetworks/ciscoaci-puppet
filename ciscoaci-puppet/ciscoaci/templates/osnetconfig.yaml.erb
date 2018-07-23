@@ -4,7 +4,7 @@ network_config:
     device: <%= @aci_opflex_uplink_interface %>
     vlan_id: <%= @aci_apic_infravlan %>
     use_dhcp: true
-    mtu: 1600
+    mtu: <%= @aci_apic_uplink_interface_mtu %>
     routes:
       -
         ip_netmask: 224.0.0.0/4

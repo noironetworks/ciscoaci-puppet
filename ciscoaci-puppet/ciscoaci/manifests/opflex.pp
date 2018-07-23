@@ -4,6 +4,7 @@ class ciscoaci::opflex(
   $aci_apic_infra_subnet_gateway = '10.0.0.30',
   $aci_apic_infra_anycast_address = '10.0.0.32',
   $aci_apic_infravlan = '4093',
+  $aci_apic_uplink_interface_mtu = '9000'
   $aci_opflex_ovs_bridge = 'br-fabric',
   $aci_opflex_encap_mode = 'vxlan',
 
