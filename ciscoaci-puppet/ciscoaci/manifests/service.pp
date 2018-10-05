@@ -22,7 +22,7 @@ class ciscoaci::service(
         tag    => ['neutron-service']
     }
 
-    service {'agent-ovs':
+    service {'opflex-agent':
         ensure => running,
         enable => true,
         tag    => ['neutron-service']
