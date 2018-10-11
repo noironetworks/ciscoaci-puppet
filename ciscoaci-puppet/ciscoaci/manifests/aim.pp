@@ -187,12 +187,12 @@ fi
     class {'ciscoaci::opflex':
     }
   } else {
-      ciscoaci::setup_ovs_patch_port{ 'source':
+      ciscoaci::opflex::setup_ovs_patch_port{ 'source':
          source_bridge => 'br-ex',
          target_bridge => 'br-int',
          br_dependency => '',
        }
-       ciscoaci::setup_ovs_patch_port{ 'target':
+       ciscoaci::opflex::setup_ovs_patch_port{ 'target':
          source_bridge => 'br-int',
          target_bridge => 'br-ex',
          br_dependency => '',
