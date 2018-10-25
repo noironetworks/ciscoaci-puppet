@@ -1,0 +1,17 @@
+DEVICE=vlan<%= @aci_apic_infravlan %>
+ONBOOT=yes
+HOTPLUG=no
+NM_CONTROLLED=no
+<% if @opflex_interface_type == "ovs" %>
+DEVICETYPE=ovs
+TYPE=OVSIntPort
+OVS_BRIDGE=br-ex
+OVS_OPTIONS="tag=<%= @aci_apic_infravlan %>"
+<% else %>
+DEVICETYPE=Ethernet
+VLAN=yes
+PHYSDEV=<%= @aci_opflex_uplink_interface %>
+<% end %>
+BOOTPROTO=dhcp
+MTU=<%= @opflex_interface_mtu %>
+PEERDNS=no

@@ -1,12 +1,25 @@
 network_config:
-  -
-    type: vlan
-    device: <%= @aci_opflex_uplink_interface %>
-    vlan_id: <%= @aci_apic_infravlan %>
-    use_dhcp: true
-    mtu: 1600
-    routes:
-      -
-        ip_netmask: 224.0.0.0/4
-        next_hop: 0.0.0.0
-        default: false
+ -
+   type: ovs_bridge
+   name: br-ex
+   members:
+     - type: vlan
+       vlan_id: <%= @aci_apic_infravlan %>
+       use_dhcp: true
+       mtu: 1600
+   routes:
+     -
+      ip_netmask: 224.0.0.0/4
+      next_hop: 0.0.0.0
+      default: false
+
+ -
+   type: ovs_patch_port
+   name: br_int-patch
+   bridge_name: br-ex
+   peer: br_ex-patch
+ -
+   type: ovs_patch_port
+   name: br_ex-patch
+   bridge_name: br-int
+   peer: br_int-patch
