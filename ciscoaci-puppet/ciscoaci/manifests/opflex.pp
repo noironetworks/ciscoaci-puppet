@@ -20,6 +20,10 @@ class ciscoaci::opflex(
   $opflex_virtual_dhcp_mac = '00:22:bd:f8:19:ff',
   $opflex_cache_dir = '/var/lib/opflex-agent-ovs/ids',
   $opflex_target_bridge_to_patch = 'br-ex',
+  $neutron_external_bridge = 'br-ex',
+  $opflex_interface_type = 'linux',
+  $opflex_interface_mtu = '1600',
+  $opflex_nat_mtu_size = '1600',
 ) {
 
    include ::ciscoaci::params
@@ -97,34 +101,42 @@ class ciscoaci::opflex(
      }
    }
 
-
-   $netconfig_yaml = "/tmp/opflex_netconfig_yaml"
-   file {'opflex_osnetconfig_yaml':
-     path  => $netconfig_yaml,
-     mode  => '0644',
-     content  => template('ciscoaci/osnetconfig.yaml.erb')
-   }
-   exec {'osnetconfig_fail':
-     command  => "/bin/os-net-config -v -c $netconfig_yaml",
-     returns  => [0,1],
-     require  => File['opflex_osnetconfig_yaml'],
-   }
-   
-   $intf_file = "/etc/sysconfig/network-scripts/ifcfg-$real_opflex_uplink_iface"
-   exec {'disable_peerdns':
-     command => "/bin/echo 'PEERDNS=no' >> $intf_file",
-     require => Exec['osnetconfig_fail'],
-   }
-
    ciscoaci::setup_dhclient_file {'dummy':
-     real_opflex_uplink_iface => $real_opflex_uplink_iface,
-     require => Exec['osnetconfig_fail', 'disable_peerdns'],
+     interface_name => $real_opflex_uplink_iface,
+     opflex_uplink_iface => $aci_opflex_uplink_interface,
+   }
+
+   file {'opflex_interface_file':
+     path => "/etc/sysconfig/network-scripts/ifcfg-vlan${aci_apic_infravlan}",
+     mode => '0644',
+     content => template('ciscoaci/opflex_interface.erb')
+   }
+
+   file {'opflex_route_file':
+     path => "/etc/sysconfig/network-scripts/route-vlan${aci_apic_infravlan}",
+     mode => '0644',
+     content => template('ciscoaci/opflex_route.erb')
    }
 
    exec {'toggle_iface':
      command  => "/sbin/ifdown $real_opflex_uplink_iface; sleep 15; /sbin/ifup $real_opflex_uplink_iface",
-     require  => Ciscoaci::Setup_dhclient_file['dummy'], 
+     require  => [Ciscoaci::Setup_dhclient_file['dummy'], File['opflex_interface_file', 'opflex_route_file']],
      notify   => Service['mcast-daemon'],
+   }
+
+   ciscoaci::setup_ovs_patch_port{ 'brex':
+      source_bridge => $neutron_external_bridge,
+      target_bridge => "br-fabric",
+      br_dependency => "",
+      source_patch_name => "patch-ex-fabric",
+      target_patch_name => "patch-fabric-ex",
+   }
+   ciscoaci::setup_ovs_patch_port{ 'brint':
+      source_bridge => "br-fabric",
+      target_bridge => $neutron_external_bridge,
+      br_dependency => "",
+      source_patch_name => "patch-fabric-ex",
+      target_patch_name => "patch-ex-fabric",
    }
 
    firewall {'297 vxlan 8472':
