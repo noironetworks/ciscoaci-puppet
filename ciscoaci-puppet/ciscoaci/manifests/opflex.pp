@@ -18,7 +18,7 @@ class ciscoaci::opflex(
   $opflex_virtual_router_mac = '00:22:bd:f8:19:ff',
   $opflex_virtual_dhcp_enabled = 'true',
   $opflex_virtual_dhcp_mac = '00:22:bd:f8:19:ff',
-  $opflex_cache_dir = '/var/lib/opflex-agent-ovs/ids',
+  $opflex_cache_dir = '/var/lib/opflex-agent-ovs/openvswitch/ids',
   $opflex_target_bridge_to_patch = 'br-ex',
 ) {
 
