@@ -138,11 +138,11 @@ fi
      'opflex/nat_mtu_size':                     value => $opflex_nat_mtu_size;
    }
 
-   if $use_openvswitch == false {
-      neutron_agent_ovs { 
-        'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver';
-      }
-   }
+#   if $use_openvswitch == false {
+#      neutron_agent_ovs { 
+#        'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver';
+#      }
+#   }
 
    if $use_openvswitch == true {
       neutron_plugin_cisco_aci {
@@ -168,21 +168,47 @@ fi
     }
   }
 
-  # In RH, this link is used to start Neutron process but in Debian, it's used only
-  # to manage database synchronization.
-  if defined(File['/etc/neutron/plugin.ini']) {
-    File <| path == '/etc/neutron/plugin.ini' |> { target => $::ciscoaci::params::aci_neutron_config_file }
-  }
-  else {
-    file {'/etc/neutron/plugin.ini':
-      ensure => link,
-      target => $::ciscoaci::params::aci_neutron_config_file,
-      tag    => 'neutron-config-file'
-    }
+  file { '/etc/neutron/plugins/ml2':
+     ensure => directory,
+     tag => 'neutron-config-file',
   }
 
-  class {'ciscoaci::policy':
-    require => Package['aci-neutron-gbp-package']
+  file { '/etc/neutron/plugins/ml2/ml2_conf_cisco_apic.ini':
+    ensure  => file,
+    owner   => 'root',
+    group   => 'neutron',
+    require => File['/etc/neutron/plugins/ml2'],
+    mode    => '0640',
+    tag     => 'neutron-config-file',
+  }
+
+  file { '/etc/neutron/plugin.ini':
+     ensure => link,
+     target => $::ciscoaci::params::aci_neutron_config_file,
+     require => File['/etc/neutron/plugins/ml2/ml2_conf_cisco_apic.ini'],
+     tag => 'neutron-config-file',
+  }
+
+  # In RH, this link is used to start Neutron process but in Debian, it's used only
+  # to manage database synchronization.
+  #if defined(File['/etc/neutron/plugin.ini']) {
+  #  File <| path == '/etc/neutron/plugin.ini' |> { target => $::ciscoaci::params::aci_neutron_config_file }
+  #}
+  #else {
+  #  file {'/etc/neutron/plugin.ini':
+  #    ensure => link,
+  #    target => $::ciscoaci::params::aci_neutron_config_file,
+  #    tag    => 'neutron-config-file'
+  #  }
+  #}
+
+  #class {'ciscoaci::policy':
+  #  require => Package['aci-neutron-gbp-package']
+  #}
+
+  file {'/etc/group-based-policy/policy.d/merged-policy.json':
+    mode => '0644',
+    content => template('ciscoaci/p.json.erb'),
   }
 
   #dbsync
@@ -193,12 +219,12 @@ fi
   }
 
   #aimconfig
-  class {'ciscoaci::aim_config':
-  }
+  #class {'ciscoaci::aim_config':
+  #}
 
   if $use_openvswitch == false {
-    class {'ciscoaci::opflex':
-    }
+    #class {'ciscoaci::opflex':
+    #}
   } else {
       ciscoaci::setup_ovs_patch_port{ 'source':
          source_bridge => 'br-ex',

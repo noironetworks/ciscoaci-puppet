@@ -7,8 +7,5 @@ class tripleo::profile::base::ciscoaci_compute (
   }
 
   include ::tripleo::profile::base::neutron
-  if $step >= 4 {
-    class {::ciscoaci::compute:
-    }
-  }
+  #class {::ciscoaci::compute:}
 }

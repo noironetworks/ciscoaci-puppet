@@ -24,6 +24,7 @@ class ciscoaci::opflex(
   $opflex_interface_type = 'linux',
   $opflex_interface_mtu = '1600',
   $opflex_nat_mtu_size = '1600',
+  $use_lldp_discovery = 'true',
 ) {
 
    include ::ciscoaci::params
@@ -51,11 +52,7 @@ class ciscoaci::opflex(
        enable => true,
    }
 
-   if($::osfamily == 'Redhat') {
-     $real_opflex_uplink_iface = "vlan${aci_apic_infravlan}"
-   } elsif ($::osfamily == 'Debian') {
-     $real_opflex_uplink_iface = "${aci_opflex_uplink_interface}.{$aci_apic_infravlan}"
-   }
+   $real_opflex_uplink_iface = "${aci_opflex_uplink_interface}.${$aci_apic_infravlan}"
 
    if ($aci_opflex_encap_mode == 'vxlan') {
      file {'agent-conf':
@@ -64,7 +61,6 @@ class ciscoaci::opflex(
        content => template('ciscoaci/opflex-agent-ovs.conf.erb'),
        require => Package['aci-agent-ovs-package'],
        notify => Service['opflex-agent','mcast-daemon'],
-       tag    => 'neutron-config-file'
      }
    }
    elsif ($aci_opflex_encap_mode == 'vlan') {
@@ -86,7 +82,6 @@ class ciscoaci::opflex(
          content => template('ciscoaci/opflex-agent-ovs-vlan.conf.erb'),
          require => Package['aci-agent-ovs-package'],
          notify => Service['opflex-agent','mcast-daemon'],
-         tag    => 'neutron-config-file'
        }
      } else {
        $v_opflex_encap_iface = $aci_opflex_uplink_interface
@@ -96,7 +91,6 @@ class ciscoaci::opflex(
          content => template('ciscoaci/opflex-agent-ovs-vlan.conf.erb'),
          require => Package['aci-agent-ovs-package'],
          notify => Service['opflex-agent','mcast-daemon'],
-         tag    => 'neutron-config-file'
        }
      }
    }
@@ -106,69 +100,79 @@ class ciscoaci::opflex(
      opflex_uplink_iface => $aci_opflex_uplink_interface,
    }
 
-   file {'opflex_interface_file':
-     path => "/etc/sysconfig/network-scripts/ifcfg-vlan${aci_apic_infravlan}",
+   #file {'opflex_interface_file':
+   #  path => "/etc/sysconfig/network-scripts/ifcfg-vlan${aci_apic_infravlan}",
+   #  mode => '0644',
+   #  content => template('ciscoaci/opflex_interface.erb'),
+   #}
+
+   #file {'opflex_route_file':
+   #  path => "/etc/sysconfig/network-scripts/route-vlan${aci_apic_infravlan}",
+   #  mode => '0644',
+   #  content => template('ciscoaci/opflex_route.erb'),
+   #}
+
+   #exec {'toggle_iface':
+   #  command  => "/sbin/ifdown $real_opflex_uplink_iface; sleep 15; /sbin/ifup $real_opflex_uplink_iface",
+   #  require  => [Ciscoaci::Setup_dhclient_file['dummy'], File['opflex_interface_file', 'opflex_route_file']],
+   #  notify   => Service['mcast-daemon'],
+   #}
+
+   #ciscoaci::setup_ovs_patch_port{ 'brex':
+   #   source_bridge => $neutron_external_bridge,
+   #   target_bridge => "br-fabric",
+   #   br_dependency => "",
+   #   source_patch_name => "patch-ex-fabric",
+   #   target_patch_name => "patch-fabric-ex",
+   #}
+   #ciscoaci::setup_ovs_patch_port{ 'brint':
+   #   source_bridge => "br-fabric",
+   #   target_bridge => $neutron_external_bridge,
+   #   br_dependency => "",
+   #   source_patch_name => "patch-fabric-ex",
+   #   target_patch_name => "patch-ex-fabric",
+   #}
+
+   #firewall {'297 vxlan 8472':
+   #   action => 'accept',
+   #   dport  => '8472',
+   #   proto  => 'udp',
+   #   state  => ['NEW'],
+   #}
+
+   #vs_bridge {$aci_opflex_ovs_bridge:
+   #  ensure => present,
+   #  external_ids => "bridge-id=$aci_opflex_ovs_bridge",
+   #}
+
+   #exec {'fix_bridge_openflow_version':
+   #   command => "/usr/bin/ovs-vsctl set bridge $aci_opflex_ovs_bridge protocols=[]",
+   #   require => [Vs_bridge[$aci_opflex_ovs_bridge]],
+   #}
+
+   #if ($aci_opflex_encap_mode == 'vxlan') {
+   #   #remove any old br-int_vxlanO ports during upgrade
+   #   exec {'delete_old_vxlan_port':
+   #     command => "/usr/bin/ovs-vsctl del-port br-int br-int_vxlan0",
+   #     onlyif => "/usr/bin/ovs-vsctl show | /bin/grep br-int_vxlan0",
+   #   }
+
+   #   exec {'add_vxlan_port':
+   #      command => "/usr/bin/ovs-vsctl add-port $aci_opflex_ovs_bridge $opflex_encap_iface -- set Interface $opflex_encap_iface type=vxlan options:remote_ip=flow options:key=flow options:dst_port=8472",
+   #      unless => "/usr/bin/ovs-vsctl show | /bin/grep $opflex_encap_iface ",
+   #      returns => [0,1,2],
+   #      require => [File['agent-conf'], Vs_bridge[$aci_opflex_ovs_bridge]],
+   #   }
+   #}
+
+   file {'/etc/opflex-agent-ovs/opflex_supervisord.conf':
      mode => '0644',
-     content => template('ciscoaci/opflex_interface.erb')
+     content => template('ciscoaci/opflex_supervisord.conf.erb'),
    }
 
-   file {'opflex_route_file':
-     path => "/etc/sysconfig/network-scripts/route-vlan${aci_apic_infravlan}",
-     mode => '0644',
-     content => template('ciscoaci/opflex_route.erb')
-   }
-
-   exec {'toggle_iface':
-     command  => "/sbin/ifdown $real_opflex_uplink_iface; sleep 15; /sbin/ifup $real_opflex_uplink_iface",
-     require  => [Ciscoaci::Setup_dhclient_file['dummy'], File['opflex_interface_file', 'opflex_route_file']],
-     notify   => Service['mcast-daemon'],
-   }
-
-   ciscoaci::setup_ovs_patch_port{ 'brex':
-      source_bridge => $neutron_external_bridge,
-      target_bridge => "br-fabric",
-      br_dependency => "",
-      source_patch_name => "patch-ex-fabric",
-      target_patch_name => "patch-fabric-ex",
-   }
-   ciscoaci::setup_ovs_patch_port{ 'brint':
-      source_bridge => "br-fabric",
-      target_bridge => $neutron_external_bridge,
-      br_dependency => "",
-      source_patch_name => "patch-fabric-ex",
-      target_patch_name => "patch-ex-fabric",
-   }
-
-   firewall {'297 vxlan 8472':
-      action => 'accept',
-      dport  => '8472',
-      proto  => 'udp',
-      state  => ['NEW'],
-   }
-
-   vs_bridge {$aci_opflex_ovs_bridge:
-     ensure => present,
-     external_ids => "bridge-id=$aci_opflex_ovs_bridge",
-   }
-
-   exec {'fix_bridge_openflow_version':
-      command => "/usr/bin/ovs-vsctl set bridge $aci_opflex_ovs_bridge protocols=[]",
-      require => [Vs_bridge[$aci_opflex_ovs_bridge]],
-   }
-
-   if ($aci_opflex_encap_mode == 'vxlan') {
-      #remove any old br-int_vxlanO ports during upgrade
-      exec {'delete_old_vxlan_port':
-        command => "/usr/bin/ovs-vsctl del-port br-int br-int_vxlan0",
-        onlyif => "/usr/bin/ovs-vsctl show | /bin/grep br-int_vxlan0",
-      }
-
-      exec {'add_vxlan_port':
-         command => "/usr/bin/ovs-vsctl add-port $aci_opflex_ovs_bridge $opflex_encap_iface -- set Interface $opflex_encap_iface type=vxlan options:remote_ip=flow options:key=flow options:dst_port=8472",
-         unless => "/usr/bin/ovs-vsctl show | /bin/grep $opflex_encap_iface ",
-         returns => [0,1,2],
-         require => [File['agent-conf'], Vs_bridge[$aci_opflex_ovs_bridge]],
-      }
+   file {'/etc/opflex-agent-ovs/opflex_healthcheck':
+     mode => '0755',
+     content => template('ciscoaci/opflex_healthcheck.erb'),
    }
 
 }

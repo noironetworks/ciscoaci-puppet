@@ -9,8 +9,8 @@ class ciscoaci::deps {
 
    Anchor['neutron::config::begin'] -> Neutron_plugin_cisco_aci<||> ~> Anchor['neutron::config::end']
 
-   Anchor['neutron::config::begin'] -> Aim_conf<||> ~> Anchor['neutron::config::end']
-   Anchor['neutron::config::begin'] -> Aimctl_config<||> ~> Anchor['neutron::config::end']
+   #Anchor['neutron::config::begin'] -> Aim_conf<||> ~> Anchor['neutron::config::end']
+   #Anchor['neutron::config::begin'] -> Aimctl_config<||> ~> Anchor['neutron::config::end']
 
    #Anchor['neutron::service::end'] ~> Anchor['ciscoaci::stop-openvswitch-agent']
 }

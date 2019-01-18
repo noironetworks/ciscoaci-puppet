@@ -3,6 +3,7 @@ module Puppet::Parser::Functions
     hosts = args[0]
     physmap = args[1]
     domain = args[2]
+    retstr = "\n"
     hosts.each do |hname|
       physmap.each do |physnetmap|
         ml = physnetmap.split(':')
@@ -10,12 +11,11 @@ module Puppet::Parser::Functions
         intfs = ml.drop(1)
         puts intfs
         intfs.each do |intf|
-           cmd = "/bin/aimctl manager host-link-network-label-delete #{hname}.#{domain} #{physnet} #{intf}"
-           cmdc = "/bin/aimctl manager host-link-network-label-create #{hname}.#{domain} #{physnet} #{intf}"
-           system(cmd)
-           system(cmdc)
+           retstr << "/bin/aimctl manager host-link-network-label-delete #{hname}.#{domain} #{physnet} #{intf} \n"
+           retstr << "/bin/aimctl manager host-link-network-label-create #{hname}.#{domain} #{physnet} #{intf} \n"
         end
       end
     end
+    return retstr
   end
 end

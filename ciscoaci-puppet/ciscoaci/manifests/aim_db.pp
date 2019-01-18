@@ -6,17 +6,17 @@ class ciscoaci::aim_db(
      include ::ciscoaci::deps
 
      exec { 'gbp-db-sync':
-       command     => '/bin/gbp-db-manage --config-file /etc/neutron/neutron.conf upgrade head',
+       command     => '/bin/gbp-db-manage --config-file /var/lib/config-data/neutron/etc/neutron/neutron.conf upgrade head',
        logoutput   => on_failure,
        require     => Package['aci-neutron-gbp-package'],
        subscribe   => [
          Anchor['neutron::install::end'],
          Anchor['neutron::config::end'],
          Anchor['neutron::dbsync::begin'],
-         Exec['neutron-db-sync']
        ],
        notify      => Anchor['neutron::dbsync::end'],
-       refreshonly => true
+       refreshonly => true,
+       #tag    => 'neutron_plugin_cisco_aci',
      }
 
      exec {'aim-db-migrate':

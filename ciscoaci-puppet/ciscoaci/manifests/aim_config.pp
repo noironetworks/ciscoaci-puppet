@@ -2,9 +2,6 @@ class ciscoaci::aim_config(
   $step  = hiera('step'),
   $aci_apic_systemid,
   $neutron_sql_connection,
-  $rabbit_password                      = $::os_service_default,
-  $rabbit_port                          = $::os_service_default,
-  $rabbit_user                          = $::os_service_default,
   $aci_apic_hosts,
   $aci_apic_username,
   $aci_apic_password,
@@ -19,34 +16,27 @@ class ciscoaci::aim_config(
   $aci_scope_infra = 'False',
   $neutron_network_vlan_ranges = undef,
   $aci_aim_debug = 'False',
+  $aci_provision_infra = 'False',
+  $aci_provision_hostlinks = 'False',
 ) inherits ::ciscoaci::params
 {
 
   include ::ciscoaci::deps
 
-  $rabbit_host =  hiera('neutron::rabbit_host', undef)
-  $rabbit_hosts = hiera('rabbitmq_node_ips', undef)
-
-  if $rabbit_hosts {
-     $rabbit_endpoints = suffix(any2array(normalize_ip_for_uri($rabbit_hosts)), ":${rabbit_port}")
-     aim_conf { 
-        'oslo_messaging_rabbit/rabbit_hosts':     value  => join($rabbit_endpoints, ',');
-      }
-  } else  {
-     aim_conf { 
-        'oslo_messaging_rabbit/rabbit_host':      value => $rabbit_host;
-        'oslo_messaging_rabbit/rabbit_port':      value => $rabbit_port;
-        'oslo_messaging_rabbit/rabbit_hosts':     value => "${rabbit_host}:${rabbit_port}";
-     }
-  }
+  $default_transport_url  = os_transport_url({
+        'transport' => hiera('messaging_rpc_service_name', 'rabbit'),
+        'hosts'     => any2array(hiera('rabbitmq_node_names', undef)),
+        'port'      => hiera('neutron::rabbit_port', '5672'),
+        'username'  => hiera('neutron::rabbit_user', 'guest'),
+        'password'  => hiera('neutron::rabbit_password'),
+        'ssl'       => hiera('neutron::rabbit_use_ssl', '0'),
+  })
 
   aim_conf {
      'DEFAULT/debug':                             value => $aci_aim_debug;
      'DEFAULT/logging_default_format_string':     value => '"%(asctime)s.%(msecs)03d %(process)d %(thread)d %(levelname)s %(name)s [-] %(instance)s%(message)s"';
-
+     'DEFAULT/transport_url':                     value => $default_transport_url;
      'database/connection':                       value => $neutron_sql_connection;
-     'oslo_messaging_rabbit/rabbit_userid':       value => $rabbit_user;
-     'oslo_messaging_rabbit/rabbit_password':     value => $rabbit_password;
      'apic/apic_hosts':                           value => $aci_apic_hosts;
      'apic/apic_username':                        value => $aci_apic_username;
      'apic/apic_password':                        value => $aci_apic_password;
@@ -61,8 +51,8 @@ class ciscoaci::aim_config(
      "apic_vmdom:$aci_apic_systemid/encap_mode":  value => $aci_encap_mode;
      'apic/apic_entity_profile':                  value => $aci_apic_aep;
      'apic/scope_infra':                          value => $aci_scope_infra;
-     'apic/apic_provision_infra':                 value => 'False';
-     'apic/apic_provision_hostlinks':             value => 'False';
+     'apic/apic_provision_infra':                 value => $aci_provision_infra;
+     'apic/apic_provision_hostlinks':             value => $aci_provision_hostlinks;
   }
  
   if $aci_encap_mode == 'vlan' {
@@ -93,11 +83,24 @@ class ciscoaci::aim_config(
      }
   }
 
-  if $step >= 5 {
-    if !empty($physical_device_mappings) {
-       $hosts = hiera('neutron_plugin_compute_ciscoaci_short_node_names', '')
-       $dummy = physnet_map($hosts, $physical_device_mappings, $domain)
-    }
+  if !empty($physical_device_mappings) {
+     $hosts = hiera('neutron_plugin_compute_ciscoaci_short_node_names', '')
+     $pmcommands = physnet_map($hosts, $physical_device_mappings, $domain)
+  }
+
+  file {'/etc/aim/physnet_mapping.sh':
+    mode => '0755',
+    content => template('ciscoaci/physnet_mapping.sh.erb'),
+  }
+
+  file {'/etc/aim/aim_supervisord.conf':
+    mode => '0644',
+    content => template('ciscoaci/aim_supervisord.conf.erb'),
+  }
+
+  file {'/etc/aim/aim_healthcheck':
+    mode => '0755',
+    content => template('ciscoaci/aim_healthcheck.erb'),
   }
 
 }

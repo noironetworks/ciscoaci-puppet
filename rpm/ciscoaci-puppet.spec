@@ -1,5 +1,5 @@
 Name:           ciscoaci-puppet
-Version:        12.0
+Version:        13.0
 Release:        %{?release}%{!?release:1}
 Summary:        Puppet manifests for configuring Cisco Aci Openstack plugin
 License:        ASL 2.0
@@ -27,7 +27,9 @@ cp -r ciscoaci $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules
 rm -rf $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
 mkdir -p $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
 cp ciscoaci.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
+cp ciscoaci_aim.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
 cp ciscoaci_compute.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
+cp ciscoaci_opflex.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
 
 %post
 if [ "$1" = "1" ]; then
@@ -50,4 +52,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 /usr/share/openstack-puppet/modules/ciscoaci
 /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci.pp
+/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_aim.pp
 /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_compute.pp
+/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_opflex.pp

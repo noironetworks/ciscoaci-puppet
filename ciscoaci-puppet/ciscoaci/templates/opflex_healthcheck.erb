@@ -1,0 +1,13 @@
+#!/bin/sh
+
+. ${HEALTHCHECK_SCRIPTS:-/usr/share/openstack-tripleo-common/healthcheck}/common.sh
+
+opflex_agent_status=$(supervisorctl -c /etc/opflex-agent-ovs/opflex_supervisord.conf status opflex-agent | awk -F ' ' '{print $2}')
+mcast_d=$(supervisorctl -c /etc/opflex-agent-ovs/opflex_supervisord.conf status mcast-d | awk -F ' ' '{print $2}')
+neutron_opflex_agent_status=$(supervisorctl -c /etc/opflex-agent-ovs/opflex_supervisord.conf status neutron-opflex-agent | awk -F ' ' '{print $2}')
+
+
+if [[ $opflex_agent_status != "RUNNING" || $mcast_d != "RUNNING" || $neutron_opflex_agent_status != "RUNNING" ]]; then
+   echo "fail"
+   exit 1
+fi

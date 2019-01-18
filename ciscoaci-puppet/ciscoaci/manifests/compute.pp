@@ -3,6 +3,7 @@ class ciscoaci::compute(
    $use_lldp_discovery = true,
    $use_openvswitch = false,
    $intel_cna_nic_disable_lldp = true,
+   $default_transport_url = $::os_service_default,
 ) inherits ::ciscoaci::params
 {
    include ::neutron::deps
