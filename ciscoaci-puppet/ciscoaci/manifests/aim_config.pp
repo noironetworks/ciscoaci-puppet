@@ -18,6 +18,7 @@ class ciscoaci::aim_config(
   $aci_aim_debug = 'False',
   $aci_provision_infra = 'False',
   $aci_provision_hostlinks = 'False',
+  $aci_external_routed_domain_name = '',
 ) inherits ::ciscoaci::params
 {
 
@@ -53,6 +54,12 @@ class ciscoaci::aim_config(
      'apic/scope_infra':                          value => $aci_scope_infra;
      'apic/apic_provision_infra':                 value => $aci_provision_infra;
      'apic/apic_provision_hostlinks':             value => $aci_provision_hostlinks;
+  }
+ 
+  if !empty($aci_external_routed_domain_name) {
+     aimctl_config {
+       'apic/apic_external_routed_domain_name':     value => $aci_external_routed_domain_name;
+     } 
   }
  
   if $aci_encap_mode == 'vlan' {
