@@ -7,5 +7,4 @@ class tripleo::profile::base::ciscoaci_compute (
   }
 
   include ::tripleo::profile::base::neutron
-  #class {::ciscoaci::compute:}
 }

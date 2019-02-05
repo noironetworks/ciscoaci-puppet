@@ -1,4 +1,4 @@
-class ciscoaci::aim(
+class ciscoaci::ml2(
    $aci_apic_systemid,
    $package_ensure    = 'present',
    $aci_mechanism_drivers = 'apic_aim',
@@ -138,12 +138,6 @@ fi
      'opflex/nat_mtu_size':                     value => $opflex_nat_mtu_size;
    }
 
-#   if $use_openvswitch == false {
-#      neutron_agent_ovs { 
-#        'securitygroup/firewall_driver': value => 'neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver';
-#      }
-#   }
-
    if $use_openvswitch == true {
       neutron_plugin_cisco_aci {
         'sfc/drivers':    value => 'aim';
@@ -157,16 +151,6 @@ fi
        'ml2_type_vlan/network_vlan_ranges': value => $nvr;
      }
    }
-
-  #plugin.ini
-  if $::osfamily == 'Debian' {
-    file_line { '/etc/default/neutron-server:NEUTRON_PLUGIN_CONFIG':
-      path  => '/etc/default/neutron-server',
-      match => '^NEUTRON_PLUGIN_CONFIG=(.*)$',
-      line  => "NEUTRON_PLUGIN_CONFIG=${::ciscoaci::params::aci_neutron_config_file}",
-      tag   => 'neutron-file-line',
-    }
-  }
 
   file { '/etc/neutron/plugins/ml2':
      ensure => directory,
@@ -189,57 +173,7 @@ fi
      tag => 'neutron-config-file',
   }
 
-  # In RH, this link is used to start Neutron process but in Debian, it's used only
-  # to manage database synchronization.
-  #if defined(File['/etc/neutron/plugin.ini']) {
-  #  File <| path == '/etc/neutron/plugin.ini' |> { target => $::ciscoaci::params::aci_neutron_config_file }
-  #}
-  #else {
-  #  file {'/etc/neutron/plugin.ini':
-  #    ensure => link,
-  #    target => $::ciscoaci::params::aci_neutron_config_file,
-  #    tag    => 'neutron-config-file'
-  #  }
-  #}
-
-  #class {'ciscoaci::policy':
-  #  require => Package['aci-neutron-gbp-package']
-  #}
-
-  file {'/etc/group-based-policy/policy.d/merged-policy.json':
-    mode => '0644',
-    content => template('ciscoaci/p.json.erb'),
-  }
-
-  #dbsync
-  if $sync_db {
-     class {'ciscoaci::aim_db': 
-        use_openvswitch => $use_openvswitch,
-     }
-  }
-
-  #aimconfig
-  #class {'ciscoaci::aim_config':
-  #}
-
-  if $use_openvswitch == false {
-    #class {'ciscoaci::opflex':
-    #}
-  } else {
-      ciscoaci::setup_ovs_patch_port{ 'source':
-         source_bridge => 'br-ex',
-         target_bridge => 'br-int',
-         br_dependency => '',
-       }
-       ciscoaci::setup_ovs_patch_port{ 'target':
-         source_bridge => 'br-int',
-         target_bridge => 'br-ex',
-         br_dependency => '',
-       }
-  }
-
-  class {'ciscoaci::aim_service':
-    use_openvswitch => $use_openvswitch,
+  class {'ciscoaci::policy':
   }
 
 }
