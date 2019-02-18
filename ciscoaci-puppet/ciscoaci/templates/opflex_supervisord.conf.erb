@@ -24,7 +24,7 @@ nocleanup = false
 strip_ansi = false
 
 [program:opflex-agent]
-command=/usr/bin/opflex_agent --log /var/log/opflex/opflex-agent.log -c /etc/opflex-agent-ovs/opflex-agent-ovs.conf -c /etc/opflex-agent-ovs/plugins.conf.d -c /etc/opflex-agent-ovs/conf.d
+command=/bin/sh -c "sleep 40 && /usr/bin/opflex_agent --log /var/log/opflex/opflex-agent.log -c /etc/opflex-agent-ovs/opflex-agent-ovs.conf -c /etc/opflex-agent-ovs/plugins.conf.d -c /etc/opflex-agent-ovs/conf.d"
 exitcodes=0,2
 stopasgroup=true
 startsecs=10
@@ -48,6 +48,7 @@ user=root
 [program:neutron-opflex-agent]
 command=/usr/bin/neutron-opflex-agent --config-file /usr/share/neutron/neutron-dist.conf --config-file /etc/neutron/neutron.conf --log-file /var/log/neutron/neutron-opflex-agent.log
 exitcodes=0,2
+priority=100
 stopasgroup=true
 startsecs=10
 startretries=3

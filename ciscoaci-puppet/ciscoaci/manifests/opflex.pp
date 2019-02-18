@@ -66,16 +66,16 @@ class ciscoaci::opflex(
    elsif ($aci_opflex_encap_mode == 'vlan') {
      if $opflex_target_bridge_to_patch != '' {
        $v_opflex_encap_iface = sprintf('%s_to_%s', $aci_opflex_ovs_bridge[0,5],$opflex_target_bridge_to_patch[0,5])
-       ciscoaci::setup_ovs_patch_port{ 'source':
-         source_bridge => $aci_opflex_ovs_bridge,
-         target_bridge => $opflex_target_bridge_to_patch,
-         br_dependency => $aci_opflex_ovs_bridge,
-       }
-       ciscoaci::setup_ovs_patch_port{ 'target':
-         source_bridge => $opflex_target_bridge_to_patch,
-         target_bridge => $aci_opflex_ovs_bridge,
-         br_dependency => $aci_opflex_ovs_bridge,
-       }
+#       ciscoaci::setup_ovs_patch_port{ 'source':
+#         source_bridge => $aci_opflex_ovs_bridge,
+#         target_bridge => $opflex_target_bridge_to_patch,
+#         br_dependency => $aci_opflex_ovs_bridge,
+#       }
+#       ciscoaci::setup_ovs_patch_port{ 'target':
+#         source_bridge => $opflex_target_bridge_to_patch,
+#         target_bridge => $aci_opflex_ovs_bridge,
+#         br_dependency => $aci_opflex_ovs_bridge,
+#       }
        file {'agent-conf':
          path => '/etc/opflex-agent-ovs/conf.d/opflex-agent-ovs.conf',
          mode => '0644',
@@ -95,10 +95,10 @@ class ciscoaci::opflex(
      }
    }
 
-   ciscoaci::setup_dhclient_file {'dummy':
-     interface_name => $real_opflex_uplink_iface,
-     opflex_uplink_iface => $aci_opflex_uplink_interface,
-   }
+#   ciscoaci::setup_dhclient_file {'dummy':
+#     interface_name => $real_opflex_uplink_iface,
+#     opflex_uplink_iface => $aci_opflex_uplink_interface,
+#   }
 
 
    file {'/etc/opflex-agent-ovs/opflex_supervisord.conf':
