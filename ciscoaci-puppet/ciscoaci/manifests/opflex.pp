@@ -111,10 +111,6 @@ class ciscoaci::opflex(
      mode => '0644',
      content => template('ciscoaci/opflex_interface.erb')
    }
-   exec {'persist_dhcp':
-     command => "/bin/echo 'PERSISTENT_DHCLIENT=1' >> $intf_file",
-     require => Exec['osnetconfig_fail'],
-   }
 
    file {'opflex_route_file':
      path => "/etc/sysconfig/network-scripts/route-vlan${aci_apic_infravlan}",
