@@ -151,6 +151,10 @@ class ciscoaci::opflex(
      command => "/bin/echo 'PEERDNS=no' >> $intf_file",
      require => Exec['osnetconfig_fail'],
    }
+   exec {'persist_dhcp':
+     command => "/bin/echo 'PERSISTENT_DHCLIENT=1' >> $intf_file",
+     require => Exec['osnetconfig_fail'],
+   }
 
    setup_dhclient_file {'dummy':
      real_opflex_uplink_iface => $real_opflex_uplink_iface,
