@@ -20,6 +20,8 @@ class ciscoaci::aim_config(
   $aci_scope_infra = 'False',
   $aci_aim_debug = 'False',
   $aci_external_routed_domain_name = '',
+  $mcast_ranges = '225.2.1.1:225.2.255.255',
+  $multicast_address = '225.1.2.3'
 ) inherits ::ciscoaci::params
 {
 
@@ -58,6 +60,8 @@ class ciscoaci::aim_config(
   aimctl_config {
      'DEFAULT/apic_system_id':                    value => $aci_apic_systemid;
      "apic_vmdom:$aci_apic_systemid/encap_mode":  value => $aci_encap_mode;
+     "apic_vmdom:$aci_apic_systemid/mcast_ranges": value => $mcast_ranges;
+     "apic_vmdom:$aci_apic_systemid/multicast_address": value => $multicast_address;
      'apic/apic_entity_profile':                  value => $aci_apic_aep;
      'apic/scope_infra':                          value => $aci_scope_infra;
      'apic/apic_provision_infra':                 value => False;
