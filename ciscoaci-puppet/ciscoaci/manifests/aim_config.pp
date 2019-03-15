@@ -78,11 +78,9 @@ class ciscoaci::aim_config(
      }
   }
   
-  if !$use_lldp_discovery {
-     if !empty($aci_host_links) {
-        ciscoaci::hostlinks {'xyz':
-          hl_a => $aci_host_links
-        }
+  if !empty($aci_host_links) {
+     ciscoaci::hostlinks {'xyz':
+        hl_a => $aci_host_links
      }
   }
 
