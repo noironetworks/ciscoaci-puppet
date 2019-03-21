@@ -24,7 +24,6 @@ class ciscoaci::opflex(
   $opflex_interface_type = 'linux',
   $opflex_interface_mtu = '1600',
   $opflex_nat_mtu_size = '1600',
-  $use_lldp_discovery = 'true',
 ) {
 
    include ::ciscoaci::params

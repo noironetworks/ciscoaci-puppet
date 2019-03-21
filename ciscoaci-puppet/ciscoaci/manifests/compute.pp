@@ -1,6 +1,5 @@
 class ciscoaci::compute(
    $package_ensure    = 'present',
-   $use_lldp_discovery = true,
    $use_openvswitch = false,
    $intel_cna_nic_disable_lldp = true,
    $default_transport_url = $::os_service_default,
@@ -30,50 +29,6 @@ class ciscoaci::compute(
      ensure => $package_ensure,
      name   => $::ciscoaci::params::apicapi_package,
      tag    => ['neutron-support-package', 'openstack']
-   }
-
-   if $use_lldp_discovery {
-      $lldp_ensure = 'running'
-      $lldp_enabled = true
-      $host_agent_ensure = 'running'
-      $host_agent_enabled = true
-      $svc_agent_ensure = 'running'
-      $svc_agent_enabled = true
-      if $intel_cna_nic_disable_lldp == true {
-         $script = "#!/bin/bash
-if [ -d '/sys/kernel/debug/i40e' ]; then
-  for i in `ls /sys/kernel/debug/i40e` ; do
-     echo lldp stop >> /sys/kernel/debug/i40e/\${i}/command
-  done
-fi
-"
-
-        file {'scriptfile':
-          path => "/tmp/nic.sh",
-          mode => "0755",
-          content => $script
-        }
-
-        exec {'disableniclldp':
-          command => '/tmp/nic.sh ',
-          require => File['scriptfile']
-        }
-      }
-   } else {
-      $lldp_ensure = 'stopped'
-      $lldp_enabled = false
-      $host_agent_ensure = 'stopped'
-      $host_agent_enabled = false
-      $svc_agent_ensure = 'stopped'
-      $svc_agent_enabled = false
-   }
-
-   service { 'lldpd':
-     ensure      => $lldp_ensure,
-     enable      => $lldp_enabled,
-     hasstatus   => true,
-     hasrestart  => true,
-     require     => Package['lldpd'],
    }
 
    exec {'patchfix':
