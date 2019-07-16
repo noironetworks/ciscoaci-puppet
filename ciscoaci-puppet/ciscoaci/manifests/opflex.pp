@@ -176,6 +176,11 @@ class ciscoaci::opflex(
       proto  => 'udp',
       state  => ['NEW'],
    }
+   firewall { '298 opflex igmp accept':
+      proto  => 'igmp',
+      action => 'accept',
+   }
+
 
    vs_bridge {$aci_opflex_ovs_bridge:
      ensure => present,
