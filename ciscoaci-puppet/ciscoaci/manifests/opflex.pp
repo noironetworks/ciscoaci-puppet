@@ -1,6 +1,7 @@
 class ciscoaci::opflex(
   $aci_apic_systemid,
   $aci_opflex_uplink_interface,
+  $opflex_enable_bond_watch,
   $aci_apic_infra_subnet_gateway = '10.0.0.30',
   $aci_apic_infra_anycast_address = '10.0.0.32',
   $aci_apic_infravlan = '4093',
