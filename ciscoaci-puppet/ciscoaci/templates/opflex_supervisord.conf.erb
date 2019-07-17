@@ -34,6 +34,20 @@ stdout_logfile=NONE
 stderr_logfile=NONE
 user=root
 
+<% if @opflex_enable_bond_watch == true %>
+[program:bond-watch]
+command=/usr/bin/apic-bond-watch <%= @aci_opflex_uplink_interface %>
+exitcodes=0,2
+stopasgroup=true
+startsecs=10
+startretries=3
+stopwaitsecs=10
+stdout_logfile=NONE
+stderr_logfile=NONE
+user=root
+<% end %>
+
+
 [program:mcast-d]
 command=/usr/bin/mcast_daemon --log /var/log/opflex/mcast.log
 exitcodes=0,2
