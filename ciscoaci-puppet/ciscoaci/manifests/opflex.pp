@@ -1,6 +1,7 @@
 class ciscoaci::opflex(
   $aci_apic_systemid,
   $aci_opflex_uplink_interface,
+  $opflex_enable_bond_watch,
   $aci_apic_infra_subnet_gateway = '10.0.0.30',
   $aci_apic_infra_anycast_address = '10.0.0.32',
   $aci_apic_infravlan = '4093',
@@ -36,6 +37,11 @@ class ciscoaci::opflex(
        tag    => ['neutron-support-package', 'openstack']
    }
 
+   package {'apicapi':
+       ensure => $package_ensure,
+       tag    => ['neutron-support-package', 'openstack']
+   }
+
    service {'opflex-agent':
        ensure => running,
        enable => true,
@@ -50,6 +56,19 @@ class ciscoaci::opflex(
    service {'neutron-opflex-agent':
        ensure => running,
        enable => true,
+   }
+
+   if ($opflex_enable_bond_watch == true) {
+       file_line { "add_opflex_interface":
+       ensure  => present,
+       line    => "opflex_bondif=${aci_opflex_uplink_interface}",
+       path    => "/etc/environment",
+      }
+      service {'apic-bond-watch':
+          ensure => running,
+          enable => true,
+          require     => Package['apicapi'],
+      }
    }
 
    if($::osfamily == 'Redhat') {
