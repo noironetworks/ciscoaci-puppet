@@ -69,7 +69,13 @@ class ciscoaci::opflex(
           enable => true,
           require     => Package['apicapi'],
       }
+   } else {
+      service {'apic-bond-watch':
+          ensure => stopped,
+          enable => false,
+      }
    }
+
 
    if($::osfamily == 'Redhat') {
      $real_opflex_uplink_iface = "vlan${aci_apic_infravlan}"
