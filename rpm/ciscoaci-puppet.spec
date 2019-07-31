@@ -53,7 +53,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%{_bindir}/opflex-net-config
+/bin/opflex-net-config
 /usr/share/openstack-puppet/modules/ciscoaci
 /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci.pp
 /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_compute.pp
