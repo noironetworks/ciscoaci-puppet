@@ -4,6 +4,8 @@ network_config:
     device: <%= @aci_opflex_uplink_interface %>
     vlan_id: <%= @aci_apic_infravlan %>
     use_dhcp: true
+    peerdns: false
+    persistent_dhclient: true 
     mtu: 1600
     routes:
       -
