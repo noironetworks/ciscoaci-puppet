@@ -23,6 +23,9 @@ This package contains ciscoaci puppet module
 rm -rf $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules
 mkdir -p $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules
 cp -r ciscoaci $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules
+rm -rf $RPM_BUILD_ROOT/bin
+cp -r bin $RPM_BUILD_ROOT
+
 
 rm -rf $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
 mkdir -p $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
@@ -50,6 +53,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
+%{_bindir}/opflex-net-config
 /usr/share/openstack-puppet/modules/ciscoaci
 /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci.pp
 /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_compute.pp
