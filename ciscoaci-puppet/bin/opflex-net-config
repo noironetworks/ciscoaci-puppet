@@ -8,8 +8,6 @@ import logging
 import argparse
 import subprocess
 
-from oslo_concurrency import processutils
-
 update_files = {}
 
 logger = logging.getLogger(__name__)
