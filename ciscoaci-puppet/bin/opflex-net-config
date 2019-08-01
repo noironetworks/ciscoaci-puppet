@@ -1,0 +1,245 @@
+#!/usr/bin/env python
+
+import yaml
+import time
+import sys
+import os
+import logging
+import argparse
+import subprocess
+
+update_files = {}
+
+logger = logging.getLogger(__name__)
+
+
+def configure_logger(verbose=False, debug=False):
+    LOG_FORMAT = '[%(asctime)s] [%(levelname)s] %(message)s'
+    DATE_FORMAT = '%Y/%m/%d %I:%M:%S %p'
+    log_level = logging.WARN
+
+    if debug:
+        log_level = logging.DEBUG
+    elif verbose:
+        log_level = logging.INFO
+
+    logging.basicConfig(format=LOG_FORMAT, datefmt=DATE_FORMAT,
+                        level=log_level)
+
+def parse_opts():
+    parser = argparse.ArgumentParser(
+        description='Configure host network interfaces using a YAML'
+        ' config file format.')
+    parser.add_argument('-c', '--config-file', metavar='CONFIG_FILE',
+                        help="""path to the configuration file.""",
+                        default='/etc/opflex-net-config/config.yaml')
+    parser.add_argument(
+        '-d', '--debug',
+        dest="debug",
+        action='store_true',
+        help="Print debugging output.",
+        required=False)
+    parser.add_argument(
+        '-v', '--verbose',
+        dest="verbose",
+        action='store_true',
+        help="Print verbose output.",
+        required=False)
+
+    args = parser.parse_args()
+    return args
+
+def diff(filename, data):
+    file_data = get_file_data(filename)
+    logger.debug("Diff file data:\n%s" % file_data)
+    logger.debug("Diff data:\n%s" % data)
+    # convert to string as JSON may have unicode in it
+    return not file_data == data
+
+def write_config(filename, data):
+    try:
+        with open(filename, 'w') as f:
+            f.write(str(data))
+    except IOError:
+        logger.error("Error opening file: %s" % filename)
+        return 1
+
+def restart_device(devname):
+    stop_device(devname)
+    start_device(devname)
+
+def stop_device(devname):
+    subprocess.call(['/sbin/ifdown', devname])
+    logger.warn("stopping device %s" % devname)
+
+def start_device(devname):
+    time.sleep(5)
+    subprocess.call(['/sbin/ifup', devname])
+    logger.warn("startng device %s" % devname)
+
+
+def enumerate_ifcfg_changes(ifcfg_data_old, ifcfg_data_new):
+    """Determine which values are added/modified/removed
+
+    :param ifcfg_data_old: content of existing ifcfg file
+    :param ifcfg_data_new: content of replacement ifcfg file
+    :return: dict of changed values and states (added, removed, modified)
+    """
+
+    changed_values = {}
+    for key in ifcfg_data_old:
+        if key in ifcfg_data_new:
+            if ifcfg_data_old[key].upper() != ifcfg_data_new[key].upper():
+                changed_values[key] = "modified"
+        else:
+            changed_values[key] = "removed"
+    for key in ifcfg_data_new:
+        if key not in ifcfg_data_old:
+            changed_values[key] = "added"
+    return changed_values
+
+
+def parse_ifcfg(ifcfg_data):
+    """Break out the key/value pairs from ifcfg_data
+
+       Return the keys and values without quotes.
+       """
+    ifcfg_values = {}
+    for line in ifcfg_data.split("\n"):
+        if not line.startswith("#") and line.find("=") > 0:
+            k, v = line.split("=", 1)
+            ifcfg_values[k] = v.strip("\"'")
+    return ifcfg_values
+
+def requires_restart(filename, new_data):
+    """Determine if changes to the ifcfg file require a restart to apply.
+
+       Simple changes like IP, MTU, and routes can be directly applied
+       without restarting the interface.
+
+    :param filename: The ifcfg-<int> filename.
+    :type filename: string
+    :param new_data: The data for the new ifcfg-<int> file.
+    :type new_data: string
+    :returns: boolean value for whether a restart is required
+    """
+
+    file_data = get_file_data(filename)
+    logger.debug("Original ifcfg file:\n%s" % file_data)
+    logger.debug("New ifcfg file:\n%s" % new_data)
+    file_values = parse_ifcfg(file_data)
+    new_values = parse_ifcfg(new_data)
+    restart_required = False
+    # Certain changes can be applied without restarting the interface
+    permitted_changes = [
+        "IPADDR",
+        "NETMASK",
+        "MTU",
+        "ONBOOT"
+    ]
+    # Check whether any of the changes require restart
+    for change in enumerate_ifcfg_changes(file_values, new_values):
+        if change not in permitted_changes:
+            # Moving to DHCP requires restarting interface
+            if change in ["BOOTPROTO", "OVSBOOTPROTO"]:
+                if change in new_values:
+                    if (new_values[change].upper() == "DHCP"):
+                        restart_required = True
+                        logger.debug( "DHCP on %s requires restart" % change)
+                        print( "DHCP on %s requires restart" % change)
+            else:
+                restart_required = True
+    if not restart_required:
+        logger.debug("Changes do not require restart")
+        print("Changes do not require restart")
+    return restart_required
+
+def get_file_data(filename):
+    if not os.path.exists(filename):
+        return ''
+
+    try:
+        with open(filename, 'r') as f:
+            return f.read()
+    except IOError:
+        logger.error("Error reading file: %s" % filename)
+        return ''
+
+def main():
+    args=parse_opts()
+    configure_logger(args.verbose, args.debug)
+    logger.info('Using config file at: %s' % args.config_file)
+    ifcfg_dirname='/etc/sysconfig/network-scripts/'
+    try:
+        with open(args.config_file, 'r') as stream:
+            try:
+                 config=yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                 logger.error("yaml error in file: %s" % args.config_file)
+                 exit( 1)
+    except IOError:
+        logger.error("Error reading file: %s" % args.config_file)
+        exit (1)
+
+    start = False
+    restart = False
+    devname = "vlan" + str(config["network_config"][0]["vlan_id"])
+    devfilename = ifcfg_dirname + "ifcfg-" + devname
+    routefilename = ifcfg_dirname + "route-" + devname
+    confstr = "# This file is autogenerated by os-net-config\n"
+    confstr += "DEVICE=vlan%s\n" % config["network_config"][0]["vlan_id"]
+    if "onboot" in config["network_config"][0]:
+        confstr += "ONBOOT=%\ns" % config["network_config"][0]["mtu"]
+    else:
+        confstr += "ONBOOT=yes\n"
+    if "hotplug" in config["network_config"][0]:
+        confstr += "HOTPLUG=%s\n" % config["network_config"][0]["hotplug"]
+    else:
+        confstr += "HOTPLUG=no\n"
+    if "nm_controlled" in config["network_config"][0]:
+        confstr += "NM_CONTROLLED=%s\n" % config["network_config"][0]["nm_controlled"]
+    else:
+        confstr += "NM_CONTROLLED=no\n"
+    confstr += "VLAN=yes\n"
+    confstr += "PHYSDEV=%s\n" % config["network_config"][0]["device"]
+    if "use_dhcp" in config["network_config"][0]:
+        if config["network_config"][0]["use_dhcp"] == True:
+            confstr += "BOOTPROTO=dhcp\n"
+        else:
+            confstr += "BOOTPROTO=none\n"
+    else:
+        confstr += "BOOTPROTO=none\n"
+    if "mtu" in config["network_config"][0]:
+        confstr += "MTU=%s\n" % config["network_config"][0]["mtu"]
+    if "persistent_dhclient" in config["network_config"][0]:
+        if config["network_config"][0]["persistent_dhclient"] == True:
+            confstr += "PERSISTENT_DHCLIENT=1\n"
+    if "peerdns" in config["network_config"][0]:
+        if config["network_config"][0]["peerdns"] == False:
+            confstr += "PEERDNS=no\n"
+
+    if not os.path.exists(devfilename):
+       start = True
+    if diff(devfilename, confstr):
+        update_files[devfilename] = confstr
+        if requires_restart(devfilename, confstr):
+            write_config(devfilename, confstr)
+            restart = True
+    if "routes" in  config["network_config"][0]:
+        routestr = config["network_config"][0]["routes"][0]["ip_netmask"] + " via " + config["network_config"][0]["routes"][0]["next_hop"] + " dev " + devname
+        if diff(routefilename, routestr):
+           logger.debug( "Route changed, restart required")
+           write_config(routefilename, routestr)
+           restart = True
+    if start:
+       logger.info("will only start")
+       start_device(devname)
+    elif restart:
+            restart_device(devname)
+    else:
+        logger.info('No changes required for vlan interface: %s' % devname)
+
+
+
+if __name__ == "__main__":
+    main()

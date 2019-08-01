@@ -77,20 +77,21 @@ class ciscoaci::opflex(
    }
 
 
+
    if($::osfamily == 'Redhat') {
      $real_opflex_uplink_iface = "vlan${aci_apic_infravlan}"
    } elsif ($::osfamily == 'Debian') {
      $real_opflex_uplink_iface = "${aci_opflex_uplink_interface}.{$aci_apic_infravlan}"
    }
 
-   define setup_dhclient_file($real_opflex_uplink_iface) {
+   define setup_dhclient_file($aci_opflex_uplink_interface,$real_opflex_uplink_iface) {
      #$searchstr = "macaddress_${real_opflex_uplink_iface}"
      #$macaddr = inline_template("<%= scope.lookupvar(@searchstr) %>")
      #$macaddr = generate("/bin/facter macaddress_$real_opflex_uplink_iface")
      #$macaddr = generate("/bin/cat", "/sys/class/net/$real_opflex_uplink_iface/address")
   
       if($::osfamily == 'Redhat') {
-        $cmdstr = "/bin/bash -c '_xyz=`/bin/cat /sys/class/net/${real_opflex_uplink_iface}/address`; printf \"send dhcp-client-identifier 01:%s;\" \$_xyz > /etc/dhcp/dhclient-${real_opflex_uplink_iface}.conf' "
+        $cmdstr = "/bin/bash -c '_xyz=`/bin/cat /sys/class/net/${aci_opflex_uplink_interface}/address`; printf \"send dhcp-client-identifier 01:%s;\" \$_xyz > /etc/dhcp/dhclient-${real_opflex_uplink_iface}.conf' "
  
         exec {'dhclient-file':
           command => $cmdstr,
@@ -158,6 +159,10 @@ class ciscoaci::opflex(
      }
    }
 
+   setup_dhclient_file {'dummy':
+     aci_opflex_uplink_interface => $aci_opflex_uplink_interface,
+     real_opflex_uplink_iface => $real_opflex_uplink_iface,
+   }
 
    $netconfig_yaml = "/tmp/opflex_netconfig_yaml"
    file {'opflex_osnetconfig_yaml':
@@ -166,35 +171,11 @@ class ciscoaci::opflex(
      content  => template('ciscoaci/osnetconfig.yaml.erb')
    }
    exec {'osnetconfig_fail':
-     command  => "/bin/os-net-config -v -c $netconfig_yaml",
+     command  => "/bin/opflex-net-config -v -c $netconfig_yaml",
      returns  => [0,1],
-     require  => File['opflex_osnetconfig_yaml'],
+     require  => [File['opflex_osnetconfig_yaml'], Setup_dhclient_file['dummy']],
    }
    
-   $intf_file = "/etc/sysconfig/network-scripts/ifcfg-$real_opflex_uplink_iface"
-   exec {'disable_peerdns':
-     command => "/bin/echo 'PEERDNS=no' >> $intf_file",
-     require => Exec['osnetconfig_fail'],
-   }
-   exec {'persist_dhcp':
-     command => "/bin/echo 'PERSISTENT_DHCLIENT=1' >> $intf_file",
-     require => Exec['osnetconfig_fail'],
-   }
-
-   setup_dhclient_file {'dummy':
-     real_opflex_uplink_iface => $real_opflex_uplink_iface,
-     require => Exec['osnetconfig_fail', 'disable_peerdns'],
-   }
-
-   exec {'toggle_iface':
-     command  => "/sbin/ifdown $real_opflex_uplink_iface; sleep 15; /sbin/ifup $real_opflex_uplink_iface",
-     require  => Setup_dhclient_file['dummy'], 
-     notify   => Service['mcast-daemon'],
-   }
-
-   #exec {'fix_iptables':
-   #   command => "/usr/sbin/iptables -I INPUT -p udp -m multiport --dports 8472 -m comment --comment \"vxlan\" -m state --state NEW -j ACCEPT",
-   #}
    firewall {'297 vxlan 8472':
       action => 'accept',
       dport  => '8472',
@@ -205,7 +186,6 @@ class ciscoaci::opflex(
       proto  => 'igmp',
       action => 'accept',
    }
-
 
    vs_bridge {$aci_opflex_ovs_bridge:
      ensure => present,
