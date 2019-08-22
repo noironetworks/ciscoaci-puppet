@@ -4,7 +4,9 @@ class ciscoaci::aim_config(
   $neutron_sql_connection,
   $aci_apic_hosts,
   $aci_apic_username,
-  $aci_apic_password,
+  $aci_apic_password = '',
+  $aci_apic_password = '',
+  $aci_apic_certname = '',
   $aci_encap_mode,
   $aci_apic_aep,
   $aci_vpc_pairs = undef,
@@ -41,12 +43,27 @@ class ciscoaci::aim_config(
      'database/connection':                       value => $neutron_sql_connection;
      'apic/apic_hosts':                           value => $aci_apic_hosts;
      'apic/apic_username':                        value => $aci_apic_username;
-     'apic/apic_password':                        value => $aci_apic_password;
      'apic/apic_use_ssl':                         value => 'True';
      'apic/verify_ssl_certificate':               value => 'False';
      'apic/scope_names':                          value => $aci_scope_names;
      'aim/aim_system_id':                         value => $aci_apic_systemid;
   }  
+
+  if !empty($aci_apic_password) {
+     aim_conf{
+        'apic/apic_password':                        value => $aci_apic_password;
+     }
+  } else {
+     $private_key_file = "/etc/aim/${aci_apic_username}_private_key"
+
+     file { $private_key_file:
+       content => $aci_apic_privatekey
+     }
+     aim_conf{
+        'apic/private_key_file':                     value => $private_key_file;
+        'apic/certificate_name':                     value => $aci_apic_certname;
+     }
+  }
 
   aimctl_config {
      'DEFAULT/apic_system_id':                    value => $aci_apic_systemid;
