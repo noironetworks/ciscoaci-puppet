@@ -101,11 +101,9 @@ class ciscoaci::ml2(
       }
    }
 
-   if $use_openvswitch == true {
-      neutron_plugin_cisco_aci {
-        'sfc/drivers':    value => 'aim';
-        'flowclassifier/drivers': value => 'aim';
-      }
+   neutron_plugin_cisco_aci {
+     'sfc/drivers':    value => 'aim';
+     'flowclassifier/drivers': value => 'aim';
    }
 
    $nvr = join(any2array($neutron_network_vlan_ranges), ',')

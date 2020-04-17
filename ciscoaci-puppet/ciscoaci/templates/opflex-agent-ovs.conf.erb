@@ -45,6 +45,7 @@
                      "encap-iface": "<%= @opflex_encap_iface %>",
                      "uplink-iface": "<%= @real_opflex_uplink_iface %>",
                      "uplink-vlan": <%= @aci_apic_infravlan %>,
+                     "uplink-native-iface": "patch-fab-ex",
                      "remote-ip": "<%= @aci_apic_infra_anycast_address %>",
                      "remote-port": <%= @opflex_remote_port %>
                  }
