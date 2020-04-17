@@ -46,17 +46,15 @@ class ciscoaci::aim_db(
        require => Exec['aim-config-update'],
      }
 
-     if $use_openvswitch == true {
-        exec {'sfc-db-migrate':
-           command  => "/usr/bin/neutron-db-manage --subproject networking-sfc upgrade head",
-           require  => Package['aci-integration-module-package'],
-           subscribe   => [
-             Anchor['neutron::install::end'],
-             Anchor['neutron::config::end'],
-             Anchor['neutron::dbsync::begin'],
-           ],
-           notify  => Anchor['neutron::dbsync::end'],
-           refreshonly => true
-        }
+     exec {'sfc-db-migrate':
+        command  => "/usr/bin/neutron-db-manage --subproject networking-sfc upgrade head",
+        require  => Package['aci-integration-module-package'],
+        subscribe   => [
+          Anchor['neutron::install::end'],
+          Anchor['neutron::config::end'],
+          Anchor['neutron::dbsync::begin'],
+        ],
+        notify  => Anchor['neutron::dbsync::end'],
+        refreshonly => true
      }
 }
