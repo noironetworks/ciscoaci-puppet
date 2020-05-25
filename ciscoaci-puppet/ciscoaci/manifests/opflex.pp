@@ -11,6 +11,7 @@ class ciscoaci::opflex(
   $opflex_log_level = 'debug2',
   $opflex_peer_port = '8009',
   $opflex_ssl_mode = 'encrypted',
+  $opflex_disabled_features,
   $opflex_endpoint_dir = '/var/lib/opflex-agent-ovs/endpoints',
   $opflex_encap_iface = 'br-fab_vxlan0',
   $opflex_remote_port = '8472',
