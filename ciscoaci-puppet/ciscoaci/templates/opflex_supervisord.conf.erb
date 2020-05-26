@@ -34,6 +34,9 @@ stdout_logfile=NONE
 stderr_logfile=NONE
 user=root
 
+[program:monitor-ovs]
+command=/bin/sh -c "while true; do sleep 5; if [ $(ls /var/run/openvswitch/ | wc -l) = 0 ]; then kill $(ps -ef | grep opflex_supervisor[d] | awk '{print $3}'); fi; done"
+
 <% if @opflex_enable_bond_watch == true %>
 [program:bond-watch]
 command=/usr/bin/apic-bond-watch <%= @aci_opflex_uplink_interface %>
