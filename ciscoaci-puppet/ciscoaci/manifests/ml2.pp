@@ -106,6 +106,13 @@ class ciscoaci::ml2(
      'flowclassifier/drivers': value => 'aim';
    }
 
+   $ned = join(any2array($extension_drivers), ',')
+      if $ned != "[]" {
+     neutron_plugin_cisco_aci{
+       'ml2/extension_drivers': value => $ned;
+     }
+   }
+
    $nvr = join(any2array($neutron_network_vlan_ranges), ',')
    if $nvr != "[]" {
      neutron_plugin_cisco_aci{
