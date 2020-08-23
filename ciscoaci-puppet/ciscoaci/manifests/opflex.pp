@@ -52,8 +52,13 @@ class ciscoaci::opflex(
        ensure => running,
        enable => true,
    }
+  
+   $cmdoutput = generate ("/usr/bin/os-net-config", "-i", "${aci_opflex_uplink_interface}")
+   $pjson = regsubst($cmdoutput, ''', '"', 'G')
+   $jsondata = parsejson($pjson)
+   $oport = $jsondata[$aci_opflex_uplink_interface]
 
-   $real_opflex_uplink_iface = "${aci_opflex_uplink_interface}.${$aci_apic_infravlan}"
+   $real_opflex_uplink_iface = "${oport}.${$aci_apic_infravlan}"
 
    if ($aci_opflex_encap_mode == 'vxlan') {
      file {'agent-conf':
