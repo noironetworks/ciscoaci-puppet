@@ -78,7 +78,6 @@ class ciscoaci::ml2(
      'ml2/type_drivers':                        value => $type_drivers;
      'ml2/tenant_network_types':                value => $tenant_network_types;
      'ml2/mechanism_drivers':                   value => $aci_mechanism_drivers;
-     'ml2/extension_drivers':                   value => $extension_drivers; 
      'ml2_apic_aim/enable_optimized_metadata':  value => $aci_optimized_metadata;
      'ml2_apic_aim/enable_keystone_notification_purge': value => $enable_keystone_notification_purge;
      'apic_aim_auth/auth_plugin':               value => 'v3password';
@@ -104,6 +103,13 @@ class ciscoaci::ml2(
    neutron_plugin_cisco_aci {
      'sfc/drivers':    value => 'aim';
      'flowclassifier/drivers': value => 'aim';
+   }
+
+   $ned = join(any2array($extension_drivers), ',')
+      if $ned != "[]" {
+     neutron_plugin_cisco_aci{
+       'ml2/extension_drivers': value => $ned;
+     }
    }
 
    $nvr = join(any2array($neutron_network_vlan_ranges), ',')
