@@ -25,15 +25,15 @@ class ciscoaci::aim_config(
 ) inherits ::ciscoaci::params
 {
 
-  include ::ciscoaci::deps
+  #include ::ciscoaci::deps
 
   $default_transport_url  = os_transport_url({
         'transport' => hiera('messaging_rpc_service_name', 'rabbit'),
-        'hosts'     => any2array(hiera('rabbitmq_node_names', undef)),
-        'port'      => hiera('neutron::rabbit_port', '5672'),
-        'username'  => hiera('neutron::rabbit_user', 'guest'),
-        'password'  => hiera('neutron::rabbit_password'),
-        'ssl'       => hiera('neutron::rabbit_use_ssl', '0'),
+        'hosts'     => any2array(hiera('oslo_messaging_rpc_node_names', undef)),
+        'port'      => hiera('oslo_messaging_rpc_port', '5672'),
+        'username'  => hiera('oslo_messaging_rpc_user_name', 'guest'),
+        'password'  => hiera('oslo_messaging_rpc_password'),
+        'ssl'       => hiera('oslo_messaging_rpc_use_ssl', '0'),
   })
 
   aim_conf {
@@ -48,6 +48,7 @@ class ciscoaci::aim_config(
      'apic/scope_names':                          value => $aci_scope_names;
      'aim/aim_system_id':                         value => $aci_apic_systemid;
   }  
+
 
   if !empty($aci_apic_password) {
      aim_conf{
@@ -108,15 +109,15 @@ class ciscoaci::aim_config(
      }
   }
 
-  if !empty($physical_device_mappings) {
-     $hosts = hiera('neutron_plugin_compute_ciscoaci_short_node_names', '')
-     $pmcommands = physnet_map($hosts, $physical_device_mappings, $domain)
-  }
+  #if !empty($physical_device_mappings) {
+  #   $hosts = hiera('neutron_plugin_compute_ciscoaci_short_node_names', '')
+  #   $pmcommands = physnet_map($hosts, $physical_device_mappings, $domain)
+  #}
 
-  file {'/etc/aim/physnet_mapping.sh':
-    mode => '0755',
-    content => template('ciscoaci/physnet_mapping.sh.erb'),
-  }
+  #file {'/etc/aim/physnet_mapping.sh':
+  #  mode => '0755',
+  #  content => template('ciscoaci/physnet_mapping.sh.erb'),
+  #}
 
   file {'/etc/aim/aim_supervisord.conf':
     mode => '0644',
