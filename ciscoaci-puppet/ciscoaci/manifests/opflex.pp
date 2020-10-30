@@ -54,7 +54,7 @@ class ciscoaci::opflex(
    }
   
    if $aci_opflex_uplink_interface =~ /^nic/ {
-      $cmdoutput = generate ("/usr/bin/os-net-config", "-i", "${aci_opflex_uplink_interface}")
+      $cmdoutput = generate ("/bin/os-net-config", "-i", "${aci_opflex_uplink_interface}")
       $pjson = regsubst($cmdoutput, ''', '"', 'G')
       $jsondata = parsejson($pjson)
       $oport = $jsondata[$aci_opflex_uplink_interface]
