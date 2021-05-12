@@ -30,6 +30,7 @@ cp ciscoaci_ml2.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/ma
 cp ciscoaci_aim.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
 cp ciscoaci_compute.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
 cp ciscoaci_opflex.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
+cp ciscoaci_neutron_opflex.pp $RPM_BUILD_ROOT/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base
 
 %post
 if [ "$1" = "1" ]; then
@@ -55,3 +56,4 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_aim.pp
 /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_compute.pp
 /usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_opflex.pp
+/usr/share/openstack-puppet/modules/tripleo/manifests/profile/base/ciscoaci_neutron_opflex.pp

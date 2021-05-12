@@ -15,11 +15,11 @@
        },
        "inspector": {
        "enabled": true,
-           "socket-name": "/var/run/opflex-agent-inspect.sock"
+           "socket-name": "<%= @opflex_inspect_socket %>"
        },
        "notif": {
            "enabled": true,
-       "socket-name": "/var/run/opflex-agent-notif.sock",
+       "socket-name": "<%= @opflex_notification_socket %>",
        // "socket-owner": "root",
        "socket-group": "opflexep",
        "socket-permissions": "770"
