@@ -26,7 +26,10 @@ class ciscoaci::opflex(
   $opflex_interface_type = 'linux',
   $opflex_interface_mtu = '1600',
   $opflex_nat_mtu_size = '1600',
-) {
+  $opflex_notification_socket = $::ciscoaci::opflex_params::opflex_notification_socket,
+  $opflex_inspect_socket = $::ciscoaci::opflex_params::opflex_inspect_socket
+) inherits ::ciscoaci::opflex_params 
+{
 
    include ::ciscoaci::params
 
@@ -44,11 +47,6 @@ class ciscoaci::opflex(
    }
 
    service {'mcast-daemon':
-       ensure => running,
-       enable => true,
-   }
-
-   service {'neutron-opflex-agent':
        ensure => running,
        enable => true,
    }
