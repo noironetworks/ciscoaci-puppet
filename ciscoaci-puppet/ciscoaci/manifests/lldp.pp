@@ -15,7 +15,7 @@ class ciscoaci::lldp(
 
    file {'/etc/neutron/ciscoaci/lldp_healthcheck':
      mode => '0755',
-     content => template('ciscoaci/lldp_supervisord.conf.erb'),
+     content => template('ciscoaci/lldp_healthcheck.erb'),
      require => File['/etc/neutron/ciscoaci'],
    }
 
