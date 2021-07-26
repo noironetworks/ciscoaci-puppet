@@ -1,4 +1,5 @@
 class ciscoaci::opflex(
+  $package_ensure = 'present',
   $aci_apic_systemid,
   $aci_opflex_uplink_interface,
   $opflex_enable_bond_watch,
