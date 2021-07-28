@@ -2,6 +2,7 @@ class ciscoaci::ml2(
    $aci_apic_systemid,
    $package_ensure    = 'present',
    $aci_mechanism_drivers = 'apic_aim',
+   $aci_optimized_dhcp = true,
    $aci_optimized_metadata = true,
    $neutron_network_vlan_ranges = undef,
    $sync_db = false,
@@ -78,6 +79,7 @@ class ciscoaci::ml2(
      'ml2/type_drivers':                        value => $type_drivers;
      'ml2/tenant_network_types':                value => $tenant_network_types;
      'ml2/mechanism_drivers':                   value => $aci_mechanism_drivers;
+     'ml2_apic_aim/enable_optimized_dhcp':      value => $aci_optimized_dhcp;
      'ml2_apic_aim/enable_optimized_metadata':  value => $aci_optimized_metadata;
      'ml2_apic_aim/enable_keystone_notification_purge': value => $enable_keystone_notification_purge;
      'apic_aim_auth/auth_plugin':               value => 'v3password';
