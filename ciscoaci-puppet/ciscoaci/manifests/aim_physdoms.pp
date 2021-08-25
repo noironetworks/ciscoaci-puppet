@@ -1,6 +1,7 @@
 class ciscoaci::aim_physdoms(
   $neutron_network_vlan_ranges = [],
-  $aci_host_links = {}
+  $aci_host_links = {},
+  $aci_phys_dom_mappings   = []
 ) inherits ::ciscoaci::params
 {
 
@@ -8,7 +9,8 @@ class ciscoaci::aim_physdoms(
   $hosts = collect_hostnames($aci_host_links)
   $physnets = collect_physnets($neutron_network_vlan_ranges)
   ciscoaci::physdom {$physnets:
-     hosts => $hosts
+     hosts => $hosts,
+     my_physdoms => $aci_phys_dom_mappings
   }
 
 }
