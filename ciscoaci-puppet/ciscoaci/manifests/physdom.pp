@@ -1,5 +1,5 @@
 define ciscoaci::physdom(
-  $hosts
+  $hosts,
   $my_physdoms
 ) {
   #$pnet_l = split($name, ':')
