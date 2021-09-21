@@ -36,3 +36,7 @@ stderr_logfile=NONE
 
 [program:monitor-ovs]
 command=/bin/sh -c "while true; do sleep 5; if [ $(ls /var/run/openvswitch/ | wc -l) = 0 ]; then kill $(ps -ef | grep opflex_supervisor[d] | awk '{print $3}'); fi; done"
+
+[eventlistener:restart-opflex-agent]
+events=PROCESS_STATE_STARTING
+command=/bin/sh -c "sleep 40 && echo $(date) >> /var/lib/opflex-agent-ovs/restarts/reboot.conf"
