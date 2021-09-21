@@ -24,7 +24,7 @@ nocleanup = false
 strip_ansi = false
 
 [program:opflex-agent]
-command=/bin/sh -c "ovs-vsctl wait-until bridge br-int && ovs-vsctl wait-until bridge br-fabric && /usr/bin/opflex_agent --log /var/log/opflex/opflex-agent.log -c /etc/opflex-agent-ovs/opflex-agent-ovs.conf -c /etc/opflex-agent-ovs/plugins.conf.d -c /etc/opflex-agent-ovs/conf.d"
+command=/bin/sh -c "ovs-vsctl wait-until bridge br-int && ovs-vsctl wait-until bridge br-fabric && /usr/bin/opflex_agent --log /var/log/opflex/opflex-agent.log -w -c /etc/opflex-agent-ovs/opflex-agent-ovs.conf -c /etc/opflex-agent-ovs/plugins.conf.d -c /etc/opflex-agent-ovs/conf.d -c /var/lib/opflex-agent-ovs/restarts"
 exitcodes=0,2
 stopasgroup=true
 startsecs=10
