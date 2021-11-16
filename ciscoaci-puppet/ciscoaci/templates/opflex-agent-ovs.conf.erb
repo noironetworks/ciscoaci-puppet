@@ -39,24 +39,6 @@
         "filesystem": ["/var/lib/opflex-agent-ovs/services"]
     },
 
-    "drop-log": {
-        // Encapsulate drop-log traffic with GENEVE.
-        "geneve" : {
-           // The name of the drop-log tunnel integration interface in OVS
-           "int-br-iface": "gen1",
-           // The name of the drop-log tunnel access interface in OVS
-           "access-br-iface": "gen2",
-           // Remote IP address that the packet should be sent to.
-           "remote-ip" : "192.168.1.2"
-        }
-    },
-
-    "drop-log-config-sources": {
-            // Filesystem path to monitor for drop log control
-            // Default: no drop log service
-            "filesystem": ["/var/lib/opflex-agent-ovs/droplog"]
-    },
-
     "renderers": {
          "stitched-mode": {
              "int-bridge-name": "<%= @aci_opflex_ovs_bridge %>",
@@ -85,7 +67,23 @@
              "mac": "<%= @opflex_virtual_dhcp_mac %>"
          }
              },
-             "flowid-cache-dir": "<%= @opflex_cache_dir %>"
+             "flowid-cache-dir": "<%= @opflex_cache_dir %>",
+             "drop-log": {
+                 // Encapsulate drop-log traffic with GENEVE.
+                 "geneve" : {
+                    // The name of the drop-log tunnel integration interface in OVS
+                    "int-br-iface": "gen1",
+                    // The name of the drop-log tunnel access interface in OVS
+                    "access-br-iface": "gen2",
+                    // Remote IP address that the packet should be sent to.
+                    "remote-ip" : "192.168.1.2"
+                 }
+             },
+             "drop-log-config-sources": {
+                     // Filesystem path to monitor for drop log control
+                     // Default: no drop log service
+                     "filesystem": ["/var/lib/opflex-agent-ovs/droplog"]
+             }
         }
     }
 }
