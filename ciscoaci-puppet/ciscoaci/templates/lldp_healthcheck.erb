@@ -2,8 +2,8 @@
 
 . ${HEALTHCHECK_SCRIPTS:-/usr/share/openstack-tripleo-common/healthcheck}/common.sh
 
-lldp_status=$(supervisorctl -c /etc/neutron/ciscoaci_lldp_supervisord.conf status lldp | awk -F ' ' '{print $2}')
-host_agent_status=$(supervisorctl -c /etc/neutron/ciscoaci_lldp_supervisord.conf status neutron-cisco-apic-host-agent | awk -F ' ' '{print $2}')
+lldp_status=$(supervisorctl -c /etc/neutron/ciscoaci/ciscoaci_lldp_supervisord.conf status lldp | awk -F ' ' '{print $2}')
+host_agent_status=$(supervisorctl -c /etc/neutron/ciscoaci/ciscoaci_lldp_supervisord.conf status neutron-cisco-apic-host-agent | awk -F ' ' '{print $2}')
 
 
 if [[ $lldp_status != "RUNNING" || $host_agent_status != "RUNNING" ]]; then
