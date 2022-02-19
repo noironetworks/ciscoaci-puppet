@@ -1,4 +1,5 @@
 class ciscoaci::neutron_opflex(
+  $aci_disable_metadata_proxy
 )
 {
    include ::ciscoaci::params
