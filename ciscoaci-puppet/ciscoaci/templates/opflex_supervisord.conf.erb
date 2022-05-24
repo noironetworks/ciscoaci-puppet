@@ -75,3 +75,17 @@ autorestart=unexpected
 startsecs=0
 <% end %>
 
+<% if @opflex_enable_drop_log == true %>
+[program:ovs-vsctl-add-droplog]
+command=/bin/ovs-vsctl -- --may-exist add-port br-int gen2 -- set interface gen2 type=geneve options:remote_ip=flow options:key=2
+exitcodes=0
+autorestart=unexpected
+startsecs=0
+
+[program:ovs-vsctl-cfg-droplog]
+command=/bin/ovs-vsctl set interface gen2 ingress_policing_rate=1000, ingress_policing_burst=100
+exitcodes=0
+autorestart=unexpected
+startsecs=0
+<% end %>
+
