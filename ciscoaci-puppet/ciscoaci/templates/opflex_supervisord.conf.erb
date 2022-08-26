@@ -24,7 +24,7 @@ nocleanup = false
 strip_ansi = false
 
 [program:opflex-agent]
-command=/bin/sh -c "ovs-vsctl wait-until bridge br-int && ovs-vsctl wait-until bridge br-fabric && /usr/bin/opflex_agent --log /var/log/opflex/opflex-agent.log -w -c /etc/opflex-agent-ovs/opflex-agent-ovs.conf -c /etc/opflex-agent-ovs/plugins.conf.d -c /etc/opflex-agent-ovs/conf.d -c /var/lib/opflex-agent-ovs/restarts"
+command=/bin/sh -c "sudo neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl wait-until bridge br-int && sudo neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl wait-until bridge br-fabric && sudo neutron-rootwrap /etc/neutron/rootwrap.conf opflex_agent --log /var/log/opflex/opflex-agent.log -w -c /etc/opflex-agent-ovs/opflex-agent-ovs.conf -c /etc/opflex-agent-ovs/plugins.conf.d -c /etc/opflex-agent-ovs/conf.d -c /var/lib/opflex-agent-ovs/restarts"
 exitcodes=0,2
 stopasgroup=true
 startsecs=10
@@ -62,14 +62,14 @@ stderr_logfile=NONE
 
 <% if @aci_opflex_encap_mode == "vxlan" %>
 [program:ovs-vsctl]
-command=/bin/ovs-vsctl -- --may-exist add-port <%= @neutron_external_bridge %>  patch-ex-fab -- set Interface patch-ex-fab type=patch options:peer=patch-fab-ex
+command=ovs-vsctl -- --may-exist add-port <%= @neutron_external_bridge %>  patch-ex-fab -- set Interface patch-ex-fab type=patch options:peer=patch-fab-ex
 exitcodes=0
 autorestart=unexpected
 startsecs=0
 <% else %>
 <% @ppname=@opflex_target_bridge_to_patch.slice(0,5) %>
 [program:ovs-vsctl]
-command=/bin/ovs-vsctl -- --may-exist add-port <%= @opflex_target_bridge_to_patch %> <%= @ppname %>_to_br-fa -- set Interface <%= @ppname %>_to_br-fa type=patch options:peer=br-fa_to_<%= @ppname %>
+command=sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl -- --may-exist add-port <%= @opflex_target_bridge_to_patch %> <%= @ppname %>_to_br-fa -- set Interface <%= @ppname %>_to_br-fa type=patch options:peer=br-fa_to_<%= @ppname %>
 exitcodes=0
 autorestart=unexpected
 startsecs=0
@@ -77,13 +77,13 @@ startsecs=0
 
 <% if @opflex_enable_drop_log == true %>
 [program:ovs-vsctl-add-droplog]
-command=/bin/ovs-vsctl -- --may-exist add-port br-int gen2 -- set interface gen2 type=geneve options:remote_ip=flow options:key=2
+command=sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl -- --may-exist add-port br-int gen2 -- set interface gen2 type=geneve options:remote_ip=flow options:key=2
 exitcodes=0
 autorestart=unexpected
 startsecs=0
 
 [program:ovs-vsctl-cfg-droplog]
-command=/bin/ovs-vsctl set interface gen2 ingress_policing_rate=1000, ingress_policing_burst=100
+command=sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl set interface gen2 ingress_policing_rate=1000, ingress_policing_burst=100
 exitcodes=0
 autorestart=unexpected
 startsecs=0
