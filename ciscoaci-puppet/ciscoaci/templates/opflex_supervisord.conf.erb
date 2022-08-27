@@ -62,7 +62,7 @@ stderr_logfile=NONE
 
 <% if @aci_opflex_encap_mode == "vxlan" %>
 [program:ovs-vsctl]
-command=sudo neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl -- --may-exist add-port <%= @neutron_external_bridge %>  patch-ex-fab -- set Interface patch-ex-fab type=patch options:peer=patch-fab-ex
+command=sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl -- --may-exist add-port <%= @neutron_external_bridge %>  patch-ex-fab -- set Interface patch-ex-fab type=patch options:peer=patch-fab-ex
 exitcodes=0
 autorestart=unexpected
 startsecs=0
