@@ -8,6 +8,9 @@ class ciscoaci::ml2(
    $opflex_endpoint_request_timeout = 10,
    $opflex_nat_mtu_size = 0,
    $enable_keystone_notification_purge = true,
+   $keystone_notification_exchange = 'keystone',
+   $keystone_notification_topic = 'notifications',
+   $keystone_notification_pool = None,
    $type_drivers = "opflex,local,flat,vlan,gre,vxlan",
    $tenant_network_types = "opflex",
    $extension_drivers = "apic_aim,port_security",
@@ -80,6 +83,9 @@ class ciscoaci::ml2(
      'ml2/mechanism_drivers':                   value => $aci_mechanism_drivers;
      'ml2_apic_aim/enable_optimized_metadata':  value => $aci_optimized_metadata;
      'ml2_apic_aim/enable_keystone_notification_purge': value => $enable_keystone_notification_purge;
+     'ml2_apic_aim/keystone_notification_exchange': value => $keystone_notification_exchange;
+     'ml2_apic_aim/keystone_notification_topic': value => $keystone_notification_topic;
+     'ml2_apic_aim/keystone_notification_pool': value => $keystone_notification_pool;
      'apic_aim_auth/auth_plugin':               value => 'v3password';
      'apic_aim_auth/auth_url':                  value => "$keystone_auth_url/v3";
      'apic_aim_auth/username':                  value => $keystone_admin_username;
