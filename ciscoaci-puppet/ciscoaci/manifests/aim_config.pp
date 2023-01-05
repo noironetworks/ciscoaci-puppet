@@ -1,6 +1,7 @@
 class ciscoaci::aim_config(
   $step  = hiera('step'),
   $aci_apic_systemid,
+  $aci_apic_systemid_length,
   $neutron_sql_connection,
   $aci_apic_hosts,
   $aci_apic_username,
@@ -67,6 +68,7 @@ class ciscoaci::aim_config(
 
   aimctl_config {
      'DEFAULT/apic_system_id':                    value => $aci_apic_systemid;
+     'DEFAULT/apic_system_id_length':             value => $aci_apic_systemid_length;
      "apic_vmdom:$aci_apic_systemid/encap_mode":  value => $aci_encap_mode;
      "apic_vmdom:$aci_apic_systemid/mcast_ranges": value => $mcast_ranges;
      "apic_vmdom:$aci_apic_systemid/multicast_address": value => $multicast_address;
