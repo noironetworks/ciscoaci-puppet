@@ -25,11 +25,11 @@
        "socket-permissions": "770"
        },
 
-       "asyncjson" : { "enabled" : "true" }
+       "asyncjson" : { "enabled" : "<%= @opflex_opflex_async_parser %>}
     },
 
     "ovs": {
-        "asyncjson" : { "enabled" : "true" }
+        "asyncjson" : { "enabled" : "<%= @opflex_ovsdb_async_parser %>}
     },
 
     "feature": {
