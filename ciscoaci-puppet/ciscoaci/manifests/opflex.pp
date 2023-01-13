@@ -28,9 +28,9 @@ class ciscoaci::opflex(
   $opflex_interface_mtu = '1600',
   $opflex_nat_mtu_size = '1600',
   $opflex_notification_socket = $::ciscoaci::opflex_params::opflex_notification_socket,
-  $opflex_inspect_socket = $::ciscoaci::opflex_params::opflex_inspect_socket
+  $opflex_inspect_socket = $::ciscoaci::opflex_params::opflex_inspect_socket,
   $opflex_ovsdb_async_parser = 'false',
-  $opflex_opflex_async_parser = 'false',
+  $opflex_opflex_async_parser = 'false'
 ) inherits ::ciscoaci::opflex_params 
 {
 
