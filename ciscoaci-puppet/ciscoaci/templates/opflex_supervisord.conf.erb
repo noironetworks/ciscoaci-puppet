@@ -29,7 +29,7 @@ command=/bin/sh -c "sudo neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl w
 <% elsif @opflex_droplog_file == 'syslog' %>
 command=/bin/sh -c "sudo neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl wait-until bridge br-int && sudo neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl wait-until bridge br-fabric && sudo neutron-rootwrap /etc/neutron/rootwrap.conf opflex_agent --drop_log_syslog --log /var/log/opflex/opflex-agent.log -w -c /etc/opflex-agent-ovs/opflex-agent-ovs.conf -c /etc/opflex-agent-ovs/plugins.conf.d -c /etc/opflex-agent-ovs/conf.d -c /var/lib/opflex-agent-ovs/restarts"
 <% else %>
-command=/bin/sh -c "sudo neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl wait-until bridge br-int && sudo neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl wait-until bridge br-fabric && sudo neutron-rootwrap /etc/neutron/rootwrap.conf opflex_agent --drop_log_file <% @opflex_droplog_file %> --log /var/log/opflex/opflex-agent.log -w -c /etc/opflex-agent-ovs/opflex-agent-ovs.conf -c /etc/opflex-agent-ovs/plugins.conf.d -c /etc/opflex-agent-ovs/conf.d -c /var/lib/opflex-agent-ovs/restarts"
+command=/bin/sh -c "sudo neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl wait-until bridge br-int && sudo neutron-rootwrap /etc/neutron/rootwrap.conf ovs-vsctl wait-until bridge br-fabric && sudo neutron-rootwrap /etc/neutron/rootwrap.conf opflex_agent --drop_log <%= @opflex_droplog_file %> --log /var/log/opflex/opflex-agent.log -w -c /etc/opflex-agent-ovs/opflex-agent-ovs.conf -c /etc/opflex-agent-ovs/plugins.conf.d -c /etc/opflex-agent-ovs/conf.d -c /var/lib/opflex-agent-ovs/restarts"
 <% end %>
 exitcodes=0,2
 stopasgroup=true
