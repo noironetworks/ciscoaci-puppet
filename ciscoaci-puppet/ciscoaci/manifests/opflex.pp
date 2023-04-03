@@ -30,7 +30,8 @@ class ciscoaci::opflex(
   $opflex_notification_socket = $::ciscoaci::opflex_params::opflex_notification_socket,
   $opflex_inspect_socket = $::ciscoaci::opflex_params::opflex_inspect_socket,
   $opflex_ovsdb_async_parser = 'false',
-  $opflex_opflex_async_parser = 'false'
+  $opflex_opflex_async_parser = 'false',
+  $opflex_retry_delay = '10'
 ) inherits ::ciscoaci::opflex_params 
 {
 
