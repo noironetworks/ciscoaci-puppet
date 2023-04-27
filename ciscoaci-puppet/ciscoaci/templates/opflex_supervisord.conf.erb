@@ -44,7 +44,7 @@ command=/bin/sh -c "while true; do sleep 5; if [ $(ls /var/run/openvswitch/ | wc
 
 <% if @opflex_enable_bond_watch == true %>
 [program:bond-watch]
-command=/usr/bin/apic-bond-watch <%= @aci_opflex_uplink_interface %>
+command=sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf apic-bond-watch <%= @aci_opflex_uplink_interface %>
 exitcodes=0,2
 stopasgroup=true
 startsecs=10
