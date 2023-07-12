@@ -76,7 +76,7 @@ class ciscoaci::ml2(
 
    $keystone_auth_url = hiera('keystone::endpoint::admin_url')
    $keystone_admin_username = 'admin'
-   $keystone_admin_password = hiera('keystone::roles::admin::password')
+   $keystone_admin_password = hiera('keystone::admin_password')
    neutron_plugin_cisco_aci{
      'DEFAULT/apic_system_id':                  value => $aci_apic_systemid;
      'ml2/type_drivers':                        value => $type_drivers;
