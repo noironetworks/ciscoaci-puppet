@@ -39,15 +39,15 @@ class ciscoaci::opflex(
   $opflex_statistics_interface_interval = '30000',
   $opflex_statistics_contract_enabled = 'true',
   $opflex_statistics_contract_interval = '10000',
-  $opflex_statistics_security_group_enabled = 'true',
+  $opflex_statistics_security_group_enabled = 'true,
   $opflex_statistics_security_group_interval = '10000',
   $opflex_statistics_service_flow_disabled = 'false',
   $opflex_statistics_service_enabled = 'true',
   $opflex_statistics_service_interval = '10000',
   $opflex_statistics_table_drop_enabled = 'true',
-  $opflex_statistics_table_drop_interval = '10000',
+  $opflex_statistics_table_drop_interval = '30000',
   $opflex_statistics_system_enabled = 'true',
-  $opflex_statistics_system_interval = '30000'
+  $opflex_statistics_system_interval = '10000'
 ) inherits ::ciscoaci::opflex_params 
 {
 
