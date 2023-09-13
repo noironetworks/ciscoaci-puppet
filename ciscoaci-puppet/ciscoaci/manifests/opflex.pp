@@ -33,7 +33,20 @@ class ciscoaci::opflex(
   $opflex_inspect_socket = $::ciscoaci::opflex_params::opflex_inspect_socket,
   $opflex_ovsdb_async_parser = 'false',
   $opflex_opflex_async_parser = 'false',
-  $opflex_retry_delay = '10'
+  $opflex_retry_delay = '10',
+  $opflex_statistics_interface_enabled = 'true',
+  $opflex_statistics_interface_interval = '30000',
+  $opflex_statistics_contract_enabled = 'true',
+  $opflex_statistics_contract_interval = '10000',
+  $opflex_statistics_security_group_enabled = 'true',
+  $opflex_statistics_security_group_interval = '10000',
+  $opflex_statistics_service_flow_disabled = 'false',
+  $opflex_statistics_service_enabled = 'true',
+  $opflex_statistics_service_interval = '10000',
+  $opflex_statistics_table_drop_enabled = 'true',
+  $opflex_statistics_table_drop_interval = '30000',
+  $opflex_statistics_system_enabled = 'true',
+  $opflex_statistics_system_interval = '10000'
 ) inherits ::ciscoaci::opflex_params 
 {
 

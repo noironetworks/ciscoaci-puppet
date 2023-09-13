@@ -27,6 +27,36 @@
        "timers": {
            "policy-retry-delay": "<%= @opflex_retry_delay %>"
        },
+       "statistics": {
+            "mode": <%= @opflex_statistics_mode %>,
+            "interface": {
+                "enabled": <%= @opflex_statistics_interface_enabled %>,
+                "interval": <%= @opflex_statistics_interface_interval %>
+            },
+            "contract": {
+                "enabled": <%= @opflex_statistics_contract_enabled %>,
+                "interval": <%= @opflex_statistics_contract_interval %>
+            },
+            "security-group": {
+                "enabled": <%= @opflex_statistics_security_group_enabled %>,
+                "interval": <%= @opflex_statistics_security_group_interval %>
+            },
+            "service": {
+                // Disable/Enable stats flow creation
+                "flow-disabled": <%= @opflex_statistics_service_flow_disabled %>,
+                // Disable/Enable stats collection
+                "enabled": <%= @opflex_statistics_service_enabled %>,
+                "interval": <%= @opflex_statistics_service_interval %>
+            },
+            "table-drop": {
+                "enabled": <%= @opflex_statistics_table_drop_enabled %>,
+                "interval": <%= @opflex_statistics_table_drop_interval %>
+            },
+            "system": {
+                "enabled": <%= @opflex_statistics_system_enabled %>,
+                "interval": <%= @opflex_statistics_system_interval %>
+            }
+       },
 
        "asyncjson" : { "enabled" : "<%= @opflex_opflex_async_parser %>"}
     },
