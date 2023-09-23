@@ -12,6 +12,7 @@ class ciscoaci::aim_config(
   $aci_apic_aep,
   $aci_vpc_pairs = undef,
   $aci_opflex_vlan_range = '',
+  $aci_phys_dom_mappings = '',
   $aci_host_links = {},
   $physical_device_mappings = '',
   $aci_scope_names = 'False',
@@ -106,7 +107,8 @@ class ciscoaci::aim_config(
   if $nvr != "[]" {
      class {'ciscoaci::aim_physdoms':
        neutron_network_vlan_ranges => $neutron_network_vlan_ranges,
-       aci_host_links => $aci_host_links
+       aci_host_links => $aci_host_links,
+       aci_phys_dom_mappings => $aci_phys_dom_mappings
      }
   }
 
