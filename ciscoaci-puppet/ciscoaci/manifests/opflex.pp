@@ -34,6 +34,7 @@ class ciscoaci::opflex(
   $opflex_ovsdb_async_parser = 'false',
   $opflex_opflex_async_parser = 'false',
   $opflex_retry_delay = '10',
+  $opflex_statistics_mode = 'real',
   $opflex_statistics_interface_enabled = 'true',
   $opflex_statistics_interface_interval = '30000',
   $opflex_statistics_contract_enabled = 'true',
