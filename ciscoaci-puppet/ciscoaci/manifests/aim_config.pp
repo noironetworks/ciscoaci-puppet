@@ -24,7 +24,8 @@ class ciscoaci::aim_config(
   $aci_external_routed_domain_name = '',
   $mcast_ranges = '225.2.1.1:225.2.255.255',
   $multicast_address = '225.1.2.3',
-  $gen1_hw_gratarps = 'False'
+  $gen1_hw_gratarps = 'False',
+  $enable_faults_subscriptions = 'False'
 ) inherits ::ciscoaci::params
 {
 
@@ -51,6 +52,7 @@ class ciscoaci::aim_config(
      'apic/scope_names':                          value => $aci_scope_names;
      'aim/aim_system_id':                         value => $aci_apic_systemid;
      'aim/support_gen1_hw_gratarps':              value => $gen1_hw_gratarps;
+     'aim/enable_faults_subscriptions':           value => $enable_faults_subscriptions;
   }  
 
   if !empty($aci_apic_password) {
