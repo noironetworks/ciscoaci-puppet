@@ -23,7 +23,8 @@ class ciscoaci::aim_config(
   $aci_provision_hostlinks = 'False',
   $aci_external_routed_domain_name = '',
   $mcast_ranges = '225.2.1.1:225.2.255.255',
-  $multicast_address = '225.1.2.3'
+  $multicast_address = '225.1.2.3',
+  $gen1_hw_gratarps = 'False'
 ) inherits ::ciscoaci::params
 {
 
@@ -49,6 +50,7 @@ class ciscoaci::aim_config(
      'apic/verify_ssl_certificate':               value => 'False';
      'apic/scope_names':                          value => $aci_scope_names;
      'aim/aim_system_id':                         value => $aci_apic_systemid;
+     'aim/support_gen1_hw_gratarps':              value => $gen1_hw_gratarps;
   }  
 
   if !empty($aci_apic_password) {
