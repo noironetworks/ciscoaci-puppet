@@ -1,7 +1,15 @@
 class ciscoaci::policy(
+   $custom_policies = {},
+   $policy_override = false,
 ) {
    $neutron_hash = loadjson('/etc/neutron/policy.json')
-   $gbp_hash = loadjson('/etc/group-based-policy/policy.d/policy.json')
+   if $policy_override {
+       $gbp_hash = $custom_policies
+   }
+   else {
+       $gbp_hash = loadjson('/etc/group-based-policy/policy.d/policy.json')
+   }
+
    $merged_hash = deep_merge($neutron_hash, $gbp_hash)
 
    $merged_json = inline_template("<%= @merged_hash.to_json %>")
