@@ -3,6 +3,8 @@ class ciscoaci::opflex(
   $aci_apic_systemid,
   $aci_opflex_uplink_interface,
   $opflex_enable_bond_watch,
+  $opflex_enable_drop_log,
+  $opflex_droplog_file,
   $aci_apic_infra_subnet_gateway = '10.0.0.30',
   $aci_apic_infra_anycast_address = '10.0.0.32',
   $aci_apic_infravlan = '4093',
@@ -31,7 +33,21 @@ class ciscoaci::opflex(
   $opflex_inspect_socket = $::ciscoaci::opflex_params::opflex_inspect_socket,
   $opflex_ovsdb_async_parser = 'false',
   $opflex_opflex_async_parser = 'false',
-  $opflex_retry_delay = '10'
+  $opflex_retry_delay = '10',
+  $opflex_statistics_mode = 'real',
+  $opflex_statistics_interface_enabled = 'true',
+  $opflex_statistics_interface_interval = '30000',
+  $opflex_statistics_contract_enabled = 'true',
+  $opflex_statistics_contract_interval = '10000',
+  $opflex_statistics_security_group_enabled = 'true',
+  $opflex_statistics_security_group_interval = '10000',
+  $opflex_statistics_service_flow_disabled = 'false',
+  $opflex_statistics_service_enabled = 'true',
+  $opflex_statistics_service_interval = '10000',
+  $opflex_statistics_table_drop_enabled = 'true',
+  $opflex_statistics_table_drop_interval = '30000',
+  $opflex_statistics_system_enabled = 'true',
+  $opflex_statistics_system_interval = '10000'
 ) inherits ::ciscoaci::opflex_params 
 {
 
