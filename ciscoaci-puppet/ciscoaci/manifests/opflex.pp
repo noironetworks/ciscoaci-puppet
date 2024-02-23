@@ -48,7 +48,7 @@ class ciscoaci::opflex(
   $opflex_statistics_table_drop_interval = '30000',
   $opflex_statistics_system_enabled = 'true',
   $opflex_statistics_system_interval = '10000',
-  $opflex_statistics_nat_enabled = 'true',
+  $opflex_statistics_nat_enabled = 'false',
   $opflex_statistics_nat_interval = '10000'
 ) inherits ::ciscoaci::opflex_params 
 {
