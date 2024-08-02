@@ -4,7 +4,7 @@ pipeline {
     }
     environment {
         ARTIFACTORY_USER = 'noiro.gen'
-        ARTIFACTORY_URL = 'https://engci-maven.cisco.com/artifactory/noiro-snapshot/ciscoaci-puppet/train/$BUILD_NUMBER'
+        ARTIFACTORY_URL = 'https://engci-maven.cisco.com/artifactory/noiro-snapshot/ciscoaci-puppet/train/ciscoaci-puppet/$BUILD_NUMBER'
     }
     stages {
         stage('Main Script') {
