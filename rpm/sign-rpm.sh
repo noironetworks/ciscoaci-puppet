@@ -5,7 +5,7 @@ set -x
 
 # Ensure the script is called with the correct number of arguments
 if [ "$#" -ne 4 ]; then
-    #echo "Usage: <rpm_path> <base64_vault_role> <base64_vault_sec> <build_user1> <build_user2>"
+    #"Usage: <rpm_path> <build_user1> <build_user2> <release-build>"
     exit 1
 fi
 
@@ -54,7 +54,7 @@ PROJECT_NAME=$GIT_URL
 REPO_URL="https://wwwin-github.cisco.com/STO-Image-Signing/rpm_deb_signing.git"
 SIGNHELPER_DIR="$WORKSPACE/rpmbuild"
 RPM_DEB_SIGN="$WORKSPACE/rpmbuild/rpm_deb_signing"
-CODE_SIGN_EXEC="$RPM_DEB_SIGN/Linux-64/swims-openpgp/code_sign.x86_64"
+CODE_SIGN_EXEC="$RPM_DEB_SIGN/Linux-64/swims-openpgp/code_sign.8.x86_64"
 RPM_SIGN_SCRIPTDIR="$RPM_DEB_SIGN/Linux-64/swims-openpgp"
 RPM_BATCH_SIGN="$RPM_SIGN_SCRIPTDIR/rpm_sign_batchmode.py3"
 RUN_EXT_SIGN="$RPM_SIGN_SCRIPTDIR/run-extsign"
