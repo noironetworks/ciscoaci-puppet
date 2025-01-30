@@ -49,7 +49,11 @@ class ciscoaci::opflex(
   $opflex_statistics_system_enabled = 'true',
   $opflex_statistics_system_interval = '10000',
   $opflex_statistics_nat_enabled = 'false',
-  $opflex_statistics_nat_interval = '10000'
+  $opflex_statistics_nat_interval = '10000',
+  $opflex_startup_policy_enabled = 'true',
+  $opflex_startup_policy_file = '/var/lib/opflex-agent-ovs/policy/pol.json',
+  $opflex_startup_policy_duration = 60,
+  $opflex_startup_policy_after_connect = 'false',
 ) inherits ::ciscoaci::opflex_params 
 {
 
