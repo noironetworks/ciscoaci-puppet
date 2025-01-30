@@ -1,5 +1,8 @@
 class ciscoaci::neutron_opflex(
   $aci_disable_metadata_proxy
+  $opflex_enable_snat_conn_track
+  $opflex_conn_track_syslog_severity
+  $opflex_conn_track_syslog_facility
 )
 {
    include ::ciscoaci::params
