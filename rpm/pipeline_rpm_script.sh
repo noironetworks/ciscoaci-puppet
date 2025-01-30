@@ -1,0 +1,62 @@
+pipeline {
+    agent {
+        label 'noiro-build-101.cisco.com'
+    }
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
+    environment {
+        ARTIFACTORY_USER = 'noiro.gen'
+        ARTIFACTORY_URL = 'https://engci-maven.cisco.com/artifactory/noiro-snapshot/ciscoaci-puppet/wallaby/ciscoaci-puppet/$BUILD_NUMBER'
+    }
+    stages {
+        stage('Main Script') {
+            steps {
+                script {
+                    sh """
+                        BUILD_DIR=$WORKSPACE/rpmbuild RELEASE=$BUILD_NUMBER ./rpm/build-rpm.sh
+                    """
+                }
+            }
+        }
+        stage('Sign RPM') {
+            steps {
+                 withCredentials([
+                    conjurSecretCredential(credentialsId: 'noiro-conjur-keeper-role-id', variable: 'KEEPER_ROLE_ID'),
+                    conjurSecretCredential(credentialsId: 'noiro-conjur-keeper-secret-id', variable: 'KEEPER_SECRET')
+                    ]) {
+                    script {
+                        def signUser1 = params.SIGNUSER1 ?: 'empty'
+                        // Handle empty params.SIGNUSER2 and pass empty string if it is
+                        def signUser2 = params.SIGNUSER2 ?: 'empty'
+                        // Execute sign-rpm.sh with Vault credentials passed as parameters
+                        sh """
+                            ./rpm/sign-rpm.sh $WORKSPACE/rpmbuild ${signUser1} ${signUser2} ${params.ReleaseBuild}
+                        """
+                    }
+                }
+            }
+        }
+        stage('Push artifactories') {
+            steps {
+                script {
+                    withCredentials([conjurSecretCredential(credentialsId: 'noiro-conjur-artifactory-token', variable: 'ARTIFACT_TOKEN')]) {
+                        script {
+                            sh """
+                                for rpm in "$WORKSPACE/rpmbuild/RPMS/noarch/"*; do
+                                    curl -v -u ${ARTIFACTORY_USER}:\${ARTIFACT_TOKEN} -X PUT "${ARTIFACTORY_URL}/\$(basename \$rpm)" -T "\$rpm"
+                                done 
+                            """
+                        }
+                    } 
+                }
+            }
+        }
+    }
+    post {
+        always {
+            cleanWs(deleteDirs: true)
+        }
+    }
+}
