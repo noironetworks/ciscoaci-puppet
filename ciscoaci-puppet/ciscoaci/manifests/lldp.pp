@@ -1,4 +1,5 @@
 class ciscoaci::lldp(
+  $lldpd_interfaces
 ) {
 
    include ::ciscoaci::params
