@@ -56,7 +56,7 @@ SIGNHELPER_DIR="$WORKSPACE/rpmbuild"
 RPM_DEB_SIGN="$WORKSPACE/rpmbuild/rpm_deb_signing"
 CODE_SIGN_EXEC="$RPM_DEB_SIGN/Linux-64/swims-openpgp/code_sign.8.x86_64"
 RPM_SIGN_SCRIPTDIR="$RPM_DEB_SIGN/Linux-64/swims-openpgp"
-RPM_BP1+r4632=1B5B32347E\P0+r\P0+r\P1+r6B62=7F\P0+r\P1+r6B44=1B5B337E\P1+r6B68=1B4F48\P1+r4037=1B4F46\ATCH_SIGN="$RPM_SIGN_SCRIPTDIR/rpm_sign_batchmode.py3"
+RPM_BATCH_SIGN="$RPM_SIGN_SCRIPTDIR/rpm_sign_batchmode.py3"
 RUN_EXT_SIGN="$RPM_SIGN_SCRIPTDIR/run-extsign"
 RPMMACROS="$WORKSPACE/signedRPMS"
 
@@ -97,7 +97,7 @@ done
 if [ "$RELEASE" == "true" ]; then  
     $CODE_SIGN_EXEC swims build authorization create -product $PRODUCT -buildType $BUILD_TYPE \
     -attestationKeyName $ATTESTATION_KEY_NAME -reason "$REASON" -buildInitiators $BUILD_INITIATOR \
-    -authType $AUTH_TYPE -username1 $USER1 -password1 "push" -usernamP1+r6B50=1B5B357E\P1+r6B4E=1B5B367E\e2 $USER2 -password2 "push" -approvers $USER2 -out $OUTPUT_TOKEN -logFile $LOG_FILE
+    -authType $AUTH_TYPE -username1 $USER1 -password1 "push" -username2 $USER2 -password2 "push" -approvers $USER2 -out $OUTPUT_TOKEN -logFile $LOG_FILE
 else
     $CODE_SIGN_EXEC swims build authorization create -product $PRODUCT -buildType $BUILD_TYPE \
     -attestationKeyName $ATTESTATION_KEY_NAME -reason "$REASON" -buildInitiators $BUILD_INITIATOR \
