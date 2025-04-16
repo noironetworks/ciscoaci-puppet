@@ -29,6 +29,7 @@
        },
        <% if @opflex_startup_policy_enabled == true %>
        "startup": {
+           "enabled": true,
            "policy-file": "<%= @opflex_startup_policy_file %>",
            "policy-duration": <%= @opflex_startup_policy_duration %>,
            "resolve-aft-conn": <%= @opflex_startup_policy_after_connect %>
