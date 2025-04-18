@@ -88,13 +88,6 @@ class ciscoaci::ml2(
      'ml2_apic_aim/keystone_notification_exchange': value => $keystone_notification_exchange;
      'ml2_apic_aim/keystone_notification_topic': value => $keystone_notification_topic;
      'ml2_apic_aim/keystone_notification_pool': value => $keystone_notification_pool;
-     'apic_aim_auth/auth_plugin':               value => 'v3password';
-     'apic_aim_auth/auth_url':                  value => "$keystone_auth_url/v3";
-     'apic_aim_auth/username':                  value => $keystone_admin_username;
-     'apic_aim_auth/password':                  value => $keystone_admin_password;
-     'apic_aim_auth/user_domain_name':          value => 'default';
-     'apic_aim_auth/project_domain_name':       value => 'default';
-     'apic_aim_auth/project_name':              value => 'admin';
      'group_policy/policy_drivers':             value => 'aim_mapping';
      'group_policy/extension_drivers':          value => $gbp_extension_drivers;
      'opflex/endpoint_request_timeout':         value => $opflex_endpoint_request_timeout;
