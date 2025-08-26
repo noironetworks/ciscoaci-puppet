@@ -54,6 +54,7 @@ class ciscoaci::opflex(
   $opflex_startup_policy_file = '/var/lib/opflex-agent-ovs/policy/pol.json',
   $opflex_startup_policy_duration = 60,
   $opflex_startup_policy_after_connect = 'false',
+  $opflex_connect_timeout = '30',
 ) inherits ::ciscoaci::opflex_params 
 {
 

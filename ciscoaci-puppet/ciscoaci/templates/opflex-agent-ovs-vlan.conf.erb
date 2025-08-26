@@ -25,7 +25,8 @@
        "socket-permissions": "770"
        },
        "timers": {
-           "policy-retry-delay": "<%= @opflex_retry_delay %>"
+           "policy-retry-delay": "<%= @opflex_retry_delay %>",
+           "connect-timeout": "<%= @opflex_connect_timeout %>"
        },
        <% if @opflex_startup_policy_enabled == true %>
        "startup": {
