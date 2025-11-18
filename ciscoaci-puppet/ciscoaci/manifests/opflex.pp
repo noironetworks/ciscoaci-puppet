@@ -55,6 +55,7 @@ class ciscoaci::opflex(
   $opflex_startup_policy_duration = 60,
   $opflex_startup_policy_after_connect = 'false',
   $opflex_connect_timeout = '30',
+  $opflex_conn_monitor = 'true',
 ) inherits ::ciscoaci::opflex_params 
 {
 
