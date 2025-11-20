@@ -7,6 +7,7 @@ class ciscoaci::aim_config(
   $aci_apic_username,
   $aci_apic_password = '',
   $aci_apic_certname = '',
+  $aci_apic_certificate = '',
   $aci_apic_privatekey = '',
   $aci_encap_mode,
   $aci_apic_aep,
@@ -25,7 +26,8 @@ class ciscoaci::aim_config(
   $mcast_ranges = '225.2.1.1:225.2.255.255',
   $multicast_address = '225.1.2.3',
   $gen1_hw_gratarps = 'False',
-  $enable_faults_subscriptions = 'False'
+  $enable_faults_subscriptions = 'False',
+  $aci_verify_ssl_certificate = 'False'
 ) inherits ::ciscoaci::params
 {
 
@@ -48,7 +50,7 @@ class ciscoaci::aim_config(
      'apic/apic_hosts':                           value => $aci_apic_hosts;
      'apic/apic_username':                        value => $aci_apic_username;
      'apic/apic_use_ssl':                         value => 'True';
-     'apic/verify_ssl_certificate':               value => 'False';
+     'apic/verify_ssl_certificate':               value => $aci_verify_ssl_certificate;
      'apic/scope_names':                          value => $aci_scope_names;
      'aim/aim_system_id':                         value => $aci_apic_systemid;
      'aim/support_gen1_hw_gratarps':              value => $gen1_hw_gratarps;
@@ -69,6 +71,15 @@ class ciscoaci::aim_config(
      aim_conf{
         'apic/private_key_file':                     value => $private_key_file;
         'apic/certificate_name':                     value => $aci_apic_certname;
+     }
+     if !empty($aci_apic_certificate) {
+        $cert_file = "/etc/aim/${certificate_name}"
+        file { $cert_file:
+           content => $aci_apic_certificate,
+           mode    => '0644',
+           owner   => 'neutron',
+           group   => 'neutron',
+        }
      }
   }
 
