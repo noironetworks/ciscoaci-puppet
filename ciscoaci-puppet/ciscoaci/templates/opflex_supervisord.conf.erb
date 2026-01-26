@@ -61,7 +61,11 @@ stderr_logfile=NONE
 
 
 [program:mcast-d]
+<% if @opflex_limit_mcast_interfaces == true %>
+command=/usr/bin/mcast_daemon -i <%= @real_opflex_uplink_iface %> --log /var/log/opflex/mcast.log
+<% else %>
 command=/usr/bin/mcast_daemon --log /var/log/opflex/mcast.log
+<% end %>
 exitcodes=0,2
 stopasgroup=true
 startsecs=10
