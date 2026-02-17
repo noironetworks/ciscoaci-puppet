@@ -41,7 +41,7 @@ stderr_logfile=NONE
 
 <% if @opflex_conn_monitor == true %>
 [program:monitor-opflex-conn]
-command=/bin/sh -c "sleep 120; while true; do if ! netstat -natp | grep -q <%= @opflex_peer_port %>; then sleep 60; if ! netstat -natp | grep -q <%= @opflex_peer_port %>; then date >> /var/lib/opflex-agent-ovs/restarts/reset.conf; fi; sleep 60; fi; done"
+command=/bin/sh -c "sleep 120; while true; do if ! sudo neutron-rootwrap /etc/neutron/rootwrap.conf netstat -natp | grep -q <%= @opflex_peer_port %>; then sleep 60; if ! sudo neutron-rootwrap /etc/neutron/rootwrap.conf netstat -natp | grep -q <%= @opflex_peer_port %>; then date >> /var/lib/opflex-agent-ovs/restarts/reset.conf; fi; sleep 60; fi; done"
 <% end %>
 
 [program:monitor-ovs]
