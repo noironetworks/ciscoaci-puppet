@@ -16,6 +16,7 @@ class ciscoaci::opflex(
   $opflex_ssl_mode = 'encrypted',
   $opflex_disabled_features,
   $opflex_endpoint_dir = '/var/lib/opflex-agent-ovs/endpoints',
+  $opflex_snats_dir = '/var/lib/opflex-agent-ovs/snats',
   $opflex_encap_iface = 'br-fab_vxlan0',
   $opflex_remote_port = '8472',
   $opflex_virtual_router = 'true',
