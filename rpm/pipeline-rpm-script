@@ -8,7 +8,7 @@ pipeline {
     }
     environment {
         ARTIFACTORY_USER = 'noiro.gen'
-        ARTIFACTORY_URL = 'https://engci-maven.cisco.com/artifactory/noiro-snapshot/ciscoaci-puppet/wallaby/ciscoaci-puppet/$BUILD_NUMBER'
+        ARTIFACTORY_URL = "https://engci-maven.cisco.com/artifactory/noiro-snapshot/ciscoaci-puppet/wallaby/ciscoaci-puppet/${env.BUILD_NUMBER}"
     }
     stages {
         stage('Main Script') {
@@ -60,11 +60,11 @@ pipeline {
                 script {
                     withCredentials([conjurSecretCredential(credentialsId: 'noiro-conjur-artifactory-token', variable: 'ARTIFACT_TOKEN')]) {
                         script {
-                            sh """
-                                for rpm in "$WORKSPACE/rpmbuild/RPMS/noarch/"*; do
-                                    curl -v -u ${ARTIFACTORY_USER}:\${ARTIFACT_TOKEN} -X PUT "${ARTIFACTORY_URL}/\$(basename \$rpm)" -T "\$rpm"
-                                done 
-                            """
+                            sh '''
+                                set +x
+                                set -eu
+                                python3 "$WORKSPACE/rpm/artifact_upload.py" "$ARTIFACTORY_URL" "$WORKSPACE/rpmbuild/RPMS/noarch/"*.rpm
+                            '''
                         }
                     } 
                 }
