@@ -20,6 +20,23 @@ pipeline {
                 }
             }
         }
+        stage('Fetch signing tools') {
+            when {
+                expression { params.SIGNUSER1 }
+            }
+            steps {
+                withCredentials([conjurSecretUsername(
+                    credentialsId: 'd6741530-6de6-4f25-965c-e50ba606d435',
+                    usernameVariable: 'RPM_DEB_SIGN_ARTIFACTORY_USER',
+                    passwordVariable: 'RPM_DEB_SIGN_ARTIFACTORY_TOKEN'
+                )]) {
+                    sh '''
+                        set +x
+                        python3 "$WORKSPACE/rpm/fetch-signing-tools.py" "$WORKSPACE/rpmbuild/rpm_deb_signing"
+                    '''
+                }
+            }
+        }
         stage('Sign RPM') {
             steps {
                  withCredentials([
