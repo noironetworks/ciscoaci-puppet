@@ -23,7 +23,7 @@ sig_creation_time=0 # If set to 0, or not set, a timestamp of current time will 
                     #       1514782800
                     #
                     #     $ date --date='2021-07-11 11:43:40' +%s
-                   P1+r4632=1B5B32347E\P0+r\P0+r\P1+r6B62=7F\P0+r\P1+r6B44=1B5B337E\P1+r6B68=1B4F48\P1+r4037=1B4F46\P1+r6B50=1B5B357E\P1+r6B4E=1B5B367E\ #       1626018220
+                    #       1626018220
 
 
 ## comment these out to use the production SWIMS server

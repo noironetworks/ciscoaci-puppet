@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -x
+set +x
+set -e
 #TODO: add verification
 
 # Ensure the script is called with the correct number of arguments
@@ -51,7 +52,6 @@ BRANCH_NAME=$GIT_BRANCH
 PROJECT_NAME=$GIT_URL
 
 # Variables
-REPO_URL="https://wwwin-github.cisco.com/STO-Image-Signing/rpm_deb_signing.git"
 SIGNHELPER_DIR="$WORKSPACE/rpmbuild"
 RPM_DEB_SIGN="$WORKSPACE/rpmbuild/rpm_deb_signing"
 CODE_SIGN_EXEC="$RPM_DEB_SIGN/Linux-64/swims-openpgp/code_sign.8.x86_64"
@@ -74,10 +74,11 @@ ATTESTATION_KEY_NAME="dcn-plugin-build"
 PRODUCT="dcn-container-vm-plugins"
 AUTH_TYPE="OTP"
 
-# Step 0: Clone the repository if it does not exist and navigate into it
-mkdir -p $SIGNHELPER_DIR
-rm -rf $RPM_DEB_SIGN
-git clone $REPO_URL $RPM_DEB_SIGN
+# The pipeline installs a checksum-pinned Artifactory package before signing.
+if [ ! -x "$CODE_SIGN_EXEC" ] || [ ! -f "$RPM_BATCH_SIGN" ]; then
+    echo "Signing tools are missing; run rpm/fetch-signing-tools.py before signing."
+    exit 1
+fi
 
 mkdir -p $WORKING_DIR
 
@@ -129,6 +130,10 @@ export SWIMS_SESSION_TOKEN=$SESSION_TOKEN_OUTPUT
 cd $RPM_SIGN_SCRIPTDIR
 source $VARSOURCE $CODE_SIGN_EXEC $USER1 $USER2
 ./run-make-cert.exp
+if [ ! -s "$GPG_FILE" ]; then
+    echo "Signing public-key generation failed."
+    exit 1
+fi
 gpg --import $GPG_FILE
 #gpg --list-keys
 
@@ -140,6 +145,6 @@ cat >"$WORKING_DIR/.rpmmacros" <<EOF
         run-extsign %{__plaintext_filename} %{__signature_filename}
 EOF
 
-python3 $RPM_BATCH_SIGN -d -u -f $CSV_FILE -m $WORKING_DIR/.rpmmacros
+python3 "$RPM_BATCH_SIGN" -e "$CODE_SIGN_EXEC" -u -f "$CSV_FILE" -m "$WORKING_DIR/.rpmmacros"
 
 #rm -rf $WORKING_DIR
